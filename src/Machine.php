@@ -56,7 +56,7 @@ class Machine
         $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
         $this->_templates_path = isset($opts["templates_path"]) 
             ? $opts["templates_path"] : "templates/";
-				$this->_slugify = new \Cocur\Slugify\Slugify();
+        $this->_slugify = new \Cocur\Slugify\Slugify();
         $this->_routes = [];
     }
   
@@ -80,7 +80,7 @@ class Machine
      */
     public function addPage($name, $cb)
     {
-				$this->_addRoute($name, "GET", $cb);
+        $this->_addRoute($name, "GET", $cb);
     }
   
     /**
@@ -94,7 +94,7 @@ class Machine
      */
     public function addAction($name, $method, $cb)
     {
-			$this->_addRoute($name, $method, $cb);
+        $this->_addRoute($name, $method, $cb);
     }
   
     /**
@@ -127,9 +127,26 @@ class Machine
      */
     public function run()
     {
-				$path = $this->_SERVER["REQUEST_URI"];
-				$method = $this->_SERVER["REQUEST_METHOD"];
-				$route_matchinfo = $this->_matchRoute($path, $method);			
+        $path = $this->_SERVER["REQUEST_URI"];
+        $method = $this->_SERVER["REQUEST_METHOD"];
+        $route_matchinfo = $this->_matchRoute($path, $method);    
+        if (!route_matchinfo) {
+            return "404";
+        }
+        // execute route callback.
+        $result = call_user_func_array(
+            $route_matchinfo["callback"], 
+            $route_matchinfo["params"]
+        );
+        // if callback redirects, the following instructions will not be
+        // executed.
+        if (!isset($result["template"])) {
+            return "404";
+        }
+        $data = isset($result["data"]) ? $result["data"] : [];
+        $output = $this->_getOutputTemplate($result["template"], $data);
+        
+        return $output;
     }
 
     /**
@@ -143,13 +160,16 @@ class Machine
      */
     private function _addRoute($name, $method, $cb)
     {
-				if (isset($this->_routes[$name][$method])) {
-					die("Config Error: duplicated route. Route exists for $method method ($name)");
-				}
-				if (!isset($this->_routes[$name])) {
-					$this->_routes[$name] = [];
-				}
-				$this->_routes[$name][$method] = $cb;
+        if (isset($this->_routes[$name][$method])) {
+            die(
+                "Config Error: duplicated route. Route exists for $method 
+			method ($name)"
+            );
+        }
+        if (!isset($this->_routes[$name])) {
+            $this->_routes[$name] = [];
+        }
+        $this->_routes[$name][$method] = $cb;
     }
   
     /**
@@ -162,26 +182,31 @@ class Machine
      */
     private function _matchRoute($path, $method)
     {
-				foreach ($this->_routes as $routename => $routearr) {
-						// $routename is for example
-						//	/route/{parameter}/
-						$routename_exp = preg_replace("/\{(.*?)\}/", "(.*?)", $routename);
-						$routename_exp = str_replace("/", "\/", $routename_exp);
-						$regexp = "/^" . $routename_exp . "$/";
-						
-						$matches = [];
-						$n_matches = preg_match_all($regexp, $path, $matches);
-						if ($n_matches > 0) {
-							if (isset($this->routes[$routename][$method])) {
-								return [
-									"callback" => $this->_routes[$routename][$method],
-									"params" => array_merge([$this], isset($matches[1]) ? $matches[1] : [])
-								];
-							}
-						}
-				}
-        
-				die();
+        foreach ($this->_routes as $routename => $routearr) {
+            // $routename is for example "/route/{parameter}/"
+            // here gets transformed to a regexp: "/route/(.*?)/"
+            $routename_exp = preg_replace("/\{(.*?)\}/", "(.*?)", $routename);
+            // escaping slashes: "\/route\/(.*?)\/"
+            $routename_exp = str_replace("/", "\/", $routename_exp);
+            // and adding start/end string tags: "/^\/route\/(.*?)\/$/"
+            $regexp = "/^" . $routename_exp . "$/";
+            
+            // time to find if the current route matches
+            $matches = [];
+            $result = preg_match($regexp, $path, $matches);
+            if ($result == 1) {
+                if (isset($this->_routes[$routename][$method])) {
+                    return [
+                    "callback" => $this->_routes[$routename][$method],
+                    "params" => array_merge(
+                        // the Machine object is passed as first param
+                        [$this], 
+                        isset($matches[1]) ? $matches[1] : []
+                    )
+                    ];
+                }
+            }
+        }
     }
   
     /**
