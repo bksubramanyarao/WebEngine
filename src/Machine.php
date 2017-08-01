@@ -80,6 +80,7 @@ class Machine
      */
     public function addPage($name, $cb)
     {
+				$this->_addRoute($name, "GET", $cb);
     }
   
     /**
@@ -93,6 +94,7 @@ class Machine
      */
     public function addAction($name, $method, $cb)
     {
+			$this->_addRoute($name, $method, $cb);
     }
   
     /**
@@ -125,6 +127,9 @@ class Machine
      */
     public function run()
     {
+				$path = $this->_SERVER["REQUEST_URI"];
+				$method = $this->_SERVER["REQUEST_METHOD"];
+				$route_matchinfo = $this->_matchRoute($path, $method);			
     }
 
     /**
@@ -138,6 +143,13 @@ class Machine
      */
     private function _addRoute($name, $method, $cb)
     {
+				if (isset($this->_routes[$name][$method])) {
+					die("Config Error: duplicated route. Route exists for $method method ($name)");
+				}
+				if (!isset($this->_routes[$name])) {
+					$this->_routes[$name] = [];
+				}
+				$this->_routes[$name][$method] = $cb;
     }
   
     /**
@@ -150,10 +162,26 @@ class Machine
      */
     private function _matchRoute($path, $method)
     {
-        return [
-        "callback" => "",
-        "params" => ""
-        ];
+				foreach ($this->_routes as $routename => $routearr) {
+						// $routename is for example
+						//	/route/{parameter}/
+						$routename_exp = preg_replace("/\{(.*?)\}/", "(.*?)", $routename);
+						$routename_exp = str_replace("/", "\/", $routename_exp);
+						$regexp = "/^" . $routename_exp . "$/";
+						
+						$matches = [];
+						$n_matches = preg_match_all($regexp, $path, $matches);
+						if ($n_matches > 0) {
+							if (isset($this->routes[$routename][$method])) {
+								return [
+									"callback" => $this->_routes[$routename][$method],
+									"params" => array_merge([$this], isset($matches[1]) ? $matches[1] : [])
+								];
+							}
+						}
+				}
+        
+				die();
     }
   
     /**
