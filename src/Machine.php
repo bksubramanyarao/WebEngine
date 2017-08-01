@@ -12,7 +12,7 @@
  *            (Apache License 2.0)
  * @link      https://github.com/paooolino/Machine
  */
-namespace Paooolino;
+namespace Machine;
 
 /**
  * Machine
@@ -31,26 +31,35 @@ class Machine
     private $_SERVER;
     private $_POST;
     private $_COOKIE;
-    
+  
     private $_routes;
-    
+  
     private $_slugify;
-    
+  
     private $_templates_path;
-    private $_plugins_path;
-    
-    public $siteurl;
-    
+  
     /**
      * Create new machine.
      *
+     * Available options are:
+     * - SERVER
+     * - POST
+     * - COOKIE
+     * - templates_path
+     *
      * @param array $opts an array of options.
      */
-    public function __construct($opts)
+    public function __construct($opts=[])
     {
-        $this->slugify = new \Cocur\Slugify\Slugify();
+        $this->_SERVER = isset($opts["SERVER"]) ? $opts["SERVER"] : $_SERVER;
+        $this->_POST = isset($opts["POST"]) ? $opts["POST"] : $_POST;
+        $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
+        $this->_templates_path = isset($opts["templates_path"]) 
+            ? $opts["templates_path"] : "templates/";
+				$this->_slugify = new \Cocur\Slugify\Slugify();
+        $this->_routes = [];
     }
-    
+  
     /**
      * Utility function to generate a unique id.
      *
@@ -60,7 +69,7 @@ class Machine
     {
         return \Ramsey\Uuid\Uuid::uuid4();
     }
-        
+      
     /**
      * Add a route without side effects.
      *
@@ -72,7 +81,7 @@ class Machine
     public function addPage($name, $cb)
     {
     }
-    
+  
     /**
      * Add a route with side effects.
      *
@@ -85,7 +94,7 @@ class Machine
     public function addAction($name, $method, $cb)
     {
     }
-    
+  
     /**
      * Process the template file and mixes it with data.
      *
@@ -97,7 +106,7 @@ class Machine
     public function getOutputTemplate($tpl, $data)
     {
     }
-        
+      
     /**
      * Redirect toward a specified route name.
      *
@@ -108,7 +117,7 @@ class Machine
     public function redirect($path)
     {
     }
-    
+  
     /**
      * Run the application.
      *
@@ -130,7 +139,7 @@ class Machine
     private function _addRoute($name, $method, $cb)
     {
     }
-    
+  
     /**
      * Check if a route matches the passed route.
      *
@@ -144,9 +153,9 @@ class Machine
         return [
         "callback" => "",
         "params" => ""
-        ]
+        ];
     }
-    
+  
     /**
      * Mixes a plain html template with data
      *

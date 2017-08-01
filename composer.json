@@ -13,13 +13,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Paooolino\\": "src"
+            "Machine\\": "src"
         }
     },
     "scripts": {
         "phpcs": [
-            "phpcbf src/Machine.php",
-            "phpcs src/Machine.php"
+            "phpcbf --tab-width=2 src/Machine.php",
+            "phpcs --tab-width=2 src/Machine.php"
         ]
     },
     "require-dev": {
