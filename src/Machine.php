@@ -76,11 +76,11 @@ class Machine
      * @param string   $name the route name.
      * @param function $cb   the callback function to be executed.
      *
-     * @return void
+     * @return string Error
      */
     public function addPage($name, $cb)
     {
-        $this->_addRoute($name, "GET", $cb);
+        return $this->_addRoute($name, "GET", $cb);
     }
   
     /**
@@ -90,43 +90,11 @@ class Machine
      * @param string   $method the method name; either "POST" or "GET".
      * @param function $cb     the callback function to be executed.
      *
-     * @return void
+     * @return string Error
      */
     public function addAction($name, $method, $cb)
     {
-        $this->_addRoute($name, $method, $cb);
-    }
-  
-    /**
-     * Process the template file and mixes it with data.
-     *
-     * @param string $tpl  the template file name
-     * @param array  $data an associative array of data fields.
-     *
-     * @return string the resulting html output.
-     */
-    public function _getOutputTemplate($tpl, $data)
-    {
-		$output = "";
-		
-		$template_file_name = $this->_templates_path . $tpl;
-		if (file_exists($template_file_name)) {
-			// data fields are available as regular php variables in templates
-			foreach ($data as $k => $v) {
-				$$k = $v;
-			}
-			
-			ob_start();
-			require($template_file_name);
-			$template = ob_get_contents();
-			ob_end_clean();
-			
-			$output = $this->_populateTemplate($template, $data);
-		} else {
-			$output = "Missing template file: " . $template_file_name;
-		}
-		
-		return $output;
+        return $this->_addRoute($name, $method, $cb);
     }
       
     /**
@@ -138,6 +106,8 @@ class Machine
      */
     public function redirect($path)
     {
+        header("location: " . $path);
+        die();
     }
   
     /**
@@ -147,28 +117,38 @@ class Machine
      */
     public function run()
     {
-		$return_value = [];
-		
+        $return_value = [
+        "ERROR" => "",
+        "output" => ""
+        ];
+        
         $path = $this->_SERVER["REQUEST_URI"];
         $method = $this->_SERVER["REQUEST_METHOD"];
         $route_matchinfo = $this->_matchRoute($path, $method);    
         if ($route_matchinfo) {
-			// execute route callback.
-			$result = call_user_func_array(
-				$route_matchinfo["callback"], 
-				$route_matchinfo["params"]
-			);
-			// if callback redirects, the following instructions will not be
-			// executed.
-			$data = isset($result["data"]) ? $result["data"] : [];
-			$return_value["output"] = $this->_getOutputTemplate($result["template"], $data);
-		} else {
-			$return_value["ERROR"] = "No route found.";
-		}
+            // execute route callback.
+            $result = call_user_func_array(
+                $route_matchinfo["callback"], 
+                $route_matchinfo["params"]
+            );
+            // if callback redirects, the following instructions will not be
+            // executed.
+            if (isset($result["data"]) && $result["template"]) {
+                $data = isset($result["data"]) ? $result["data"] : [];
+                $return_value["output"] = $this->_getOutputTemplate(
+                    $result["template"], 
+                    $data
+                );
+            } else {
+                $return_value["ERROR"] = "Callback redirect missing.";
+            }
+        } else {
+            $return_value["ERROR"] = "No route found.";
+        }
         
         echo $return_value["output"];
-		
-		return $return_value;
+        
+        return $return_value;
     }
 
     /**
@@ -178,20 +158,19 @@ class Machine
      * @param string   $method the method name; either "POST" or "GET".
      * @param function $cb     the callback function to be executed.
      *
-     * @return void
+     * @return string Error
      */
     private function _addRoute($name, $method, $cb)
     {
         if (isset($this->_routes[$name][$method])) {
-            die(
-                "Config Error: duplicated route. Route exists for $method 
-			method ($name)"
-            );
+            return "Config Error: duplicated route. Route exists for $method " 
+            . "method ($name)";
         }
         if (!isset($this->_routes[$name])) {
             $this->_routes[$name] = [];
         }
         $this->_routes[$name][$method] = $cb;
+        return "";
     }
   
     /**
@@ -200,8 +179,7 @@ class Machine
      * @param string $path   the route to check.
      * @param string $method the request method; either "POST" or "GET".
      *
-     * @return array the matched route infos (callback and params).
-     * @return void if a route is not found.
+     * @return array|void the matched route infos (callback and params).
      */
     private function _matchRoute($path, $method)
     {
@@ -233,6 +211,38 @@ class Machine
     }
   
     /**
+     * Process the template file and mixes it with data.
+     *
+     * @param string $tpl  the template file name
+     * @param array  $data an associative array of data fields.
+     *
+     * @return string the resulting html output.
+     */
+    private function _getOutputTemplate($tpl, $data)
+    {
+        $output = "";
+        
+        $template_file_name = $this->_templates_path . $tpl;
+        if (file_exists($template_file_name)) {
+            // data fields are available as regular php variables in templates
+            foreach ($data as $k => $v) {
+                $$k = $v;
+            }
+            
+            ob_start();
+            include $template_file_name;
+            $template = ob_get_contents();
+            ob_end_clean();
+            
+            $output = $this->_populateTemplate($template, $data);
+        } else {
+            $output = "Missing template file: " . $template_file_name;
+        }
+        
+        return $output;
+    }
+    
+    /**
      * Mixes a plain html template with data
      *
      * @param string $tpl  the template file name
@@ -242,14 +252,14 @@ class Machine
      */
     private function _populateTemplate($tpl, $data)
     {
-		// populate simple tag with data
-		foreach($data as $k => $v) {
-			// if a string, try the tag substitution
-			if (gettype($v) == "string") {
-				$tpl = str_replace("{{".$k."}}", $v, $tpl);
-			}
-		}
-		
-		return $tpl;
+        // populate simple tag with data
+        foreach ($data as $k => $v) {
+            // if a string, try the tag substitution
+            if (gettype($v) == "string") {
+                $tpl = str_replace("{{".$k."}}", $v, $tpl);
+            }
+        }
+        
+        return $tpl;
     }
 }
