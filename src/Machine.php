@@ -33,10 +33,12 @@ class Machine
     private $_COOKIE;
   
     private $_routes;
-  
+    private $_plugins;
+    
     private $_slugify;
   
     private $_templates_path;
+    private $_plugins_path;
   
     /**
      * Create new machine.
@@ -56,8 +58,11 @@ class Machine
         $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
         $this->_templates_path = isset($opts["templates_path"]) 
             ? $opts["templates_path"] : "templates/";
+        $this->_plugins_path = isset($opts["plugins_path"]) 
+            ? $opts["plugins_path"] : "plugins/";
         $this->_slugify = new \Cocur\Slugify\Slugify();
         $this->_routes = [];
+        $this->_plugins = [];
     }
   
     /**
@@ -97,6 +102,41 @@ class Machine
         return $this->_addRoute($name, $method, $cb);
     }
       
+    /**
+     * Add a plugin by name.
+     *
+     * @param string $name the plugin name.
+     *
+     * @return string Error
+     */    
+    public function addPlugin($name) 
+    {
+        $plugin_path = $this->_plugins_path . $name . ".php"; 
+        if (file_exists($plugin_path)) {
+            $className = "\\Plugin\\" . $name;
+            if (!class_exists($className)) {
+                include $plugin_path;
+            }
+            // instantiate the plugin class passing the Machine object
+            $this->_plugins[$name] = new $className($this);
+            return "";
+        } else {
+            return "Unable to find " . $plugin_path;
+        }
+    }
+    
+    /**
+     * Return the plugin instance.
+     *
+     * @param string $name the plugin name.
+     *
+     * @return PluginInstance The plugin instance 
+     */
+    public function plugin($name) 
+    {
+        return $this->_plugins[$name];
+    }
+    
     /**
      * Redirect toward a specified route name.
      *
@@ -164,7 +204,7 @@ class Machine
     {
         if (isset($this->_routes[$name][$method])) {
             return "Config Error: duplicated route. Route exists for $method " 
-            . "method ($name)";
+                . "method ($name)";
         }
         if (!isset($this->_routes[$name])) {
             $this->_routes[$name] = [];
@@ -198,12 +238,12 @@ class Machine
             if ($result == 1) {
                 if (isset($this->_routes[$routename][$method])) {
                     return [
-                    "callback" => $this->_routes[$routename][$method],
-                    "params" => array_merge(
-                        // the Machine object is passed as first param
-                        [$this], 
-                        isset($matches[1]) ? $matches[1] : []
-                    )
+                        "callback" => $this->_routes[$routename][$method],
+                        "params" => array_merge(
+                            // the Machine object is passed as first param
+                            [$this], 
+                            isset($matches[1]) ? $matches[1] : []
+                        )
                     ];
                 }
             }
@@ -224,6 +264,15 @@ class Machine
         
         $template_file_name = $this->_templates_path . $tpl;
         if (file_exists($template_file_name)) {
+            // plugins are available under their name
+            //	this lets to write in templates
+            //		$Auth->logged_user_id
+            //	instead of
+            //		$this->plugin("Auth")->logged_user_id
+            foreach ($this->_plugins as $name => $instance) {
+                $$name = $instance;
+            }
+            
             // data fields are available as regular php variables in templates
             foreach ($data as $k => $v) {
                 $$k = $v;
@@ -257,6 +306,26 @@ class Machine
             // if a string, try the tag substitution
             if (gettype($v) == "string") {
                 $tpl = str_replace("{{".$k."}}", $v, $tpl);
+            }
+        }
+        
+        // find plugin tags
+        //	eg {{<plugin_name>|<param1>|<param2>}}
+        $tags = [];
+        preg_match_all("/{{(.*?)\|(.*?)}}/", $tpl, $tags);
+        for ($i = 0; $i < count($tags[0]); $i++) {
+            $pluginName = $tags[1][$i];
+            if (isset($this->_plugins[$pluginName])) {
+                $parts = explode("|", $tags[2][$i]);
+                $pluginMethod = array_shift($parts);
+                if (method_exists($this->_plugins[$pluginName], $pluginMethod)) {
+                    $value = $this->_plugins[$pluginName]->{$pluginMethod}($parts);
+                    $tpl = str_replace($tags[0][$i], $value, $tpl);
+                } else {
+                    //die("Tag plugin not managed " . $pluginName . "->" . $pluginMethod);
+                }
+            } else {
+                //die("Plugin not managed " . $pluginName);
             }
         }
         

@@ -13,7 +13,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				"REQUEST_METHOD" => $method,
 				"REQUEST_URI" => $path
 			],
-			"templates_path" => "tests/templates/"
+			"templates_path" => "tests/templates/",
+			"plugins_path" => "tests/plugins/"
 		];
 	}
 	
@@ -112,5 +113,64 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		});
 		$this->assertEquals("Config Error: duplicated route. Route exists "
 			. "for GET method (/duplicated/)", $result);
+	}
+	
+	public function testAddPlugin() 
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPlugin("Sample");
+		$this->assertEquals("Plugin\Sample", get_class($machine->plugin("Sample")));
+	}
+	
+	public function testAddNonExistentPlugin() 
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$result = $machine->addPlugin("NonExistent");
+		$this->assertEquals("Unable to find tests/plugins/NonExistent.php", $result);
+	}
+	
+	public function testUsePlugin() 
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPlugin("Sample");
+		$machine->addPage("/", function() {
+			return [
+				"template" => "testplug.php",
+				"data" => [
+					"content" => "{{Sample|Plugfun|par1|par2|par3}}"
+				]
+			];
+		});
+		$response = $machine->run();
+		
+		// {{Sample|plugfun|par1|par2|par3}}
+		$this->assertContains(
+			"<p>Sample plugin function called with params par1, par2, par3</p>", 
+			$response["output"]
+		);
+		// echo $Sample->plugFun("test1");
+		$this->assertContains(
+			"<p>Sample plugin function called with params test1</p>", 
+			$response["output"]
+		);
+		// echo $Sample->plugFun(["test2"]);
+		$this->assertContains(
+			"<p>Sample plugin function called with params test2</p>", 
+			$response["output"]
+		);
+		// echo $Sample->plugFun(["par4", "par5"]);
+		$this->assertContains(
+			"<p>Sample plugin function called with params par4, par5</p>", 
+			$response["output"]
+		);
+
+		$result = $machine->plugin("Sample")->Plugfun("test");
+		$this->assertEquals("Sample plugin function called with params test", $result);
 	}
 }
