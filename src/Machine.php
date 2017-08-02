@@ -39,7 +39,9 @@ class Machine
   
     private $_templates_path;
     private $_plugins_path;
-  
+    
+    private $_template_name;
+    
     /**
      * Create new machine.
      *
@@ -63,6 +65,7 @@ class Machine
         $this->_slugify = new \Cocur\Slugify\Slugify();
         $this->_routes = [];
         $this->_plugins = [];
+        $this->_template_name = "default";
     }
   
     /**
@@ -151,6 +154,18 @@ class Machine
     }
   
     /**
+     * Set the template name
+     *
+     * @param string $template_name the template name.
+     *
+     * @return void
+     */
+    public function setTemplate($template_name)
+    {
+        $this->_template_name = $template_name;
+    }
+    
+    /**
      * Run the application.
      *
      * @return array A response array with "output", "ERROR" fields.
@@ -235,7 +250,7 @@ class Machine
             // time to find if the current route matches
             $matches = [];
             $result = preg_match($regexp, $path, $matches);
-			array_shift($matches);
+            array_shift($matches);
             if ($result == 1) {
                 if (isset($this->_routes[$routename][$method])) {
                     return [
@@ -263,7 +278,8 @@ class Machine
     {
         $output = "";
         
-        $template_file_name = $this->_templates_path . $tpl;
+        $template_file_name = $this->_templates_path 
+        . $this->_template_name . "/" . $tpl;
         if (file_exists($template_file_name)) {
             // plugins are available under their name
             //	this lets to write in templates
@@ -323,7 +339,8 @@ class Machine
                     $value = $this->_plugins[$pluginName]->{$pluginMethod}($parts);
                     $tpl = str_replace($tags[0][$i], $value, $tpl);
                 } else {
-                    //die("Tag plugin not managed " . $pluginName . "->" . $pluginMethod);
+                    //die("Tag plugin not managed " . $pluginName . "->" 
+                    //	. $pluginMethod);
                 }
             } else {
                 //die("Plugin not managed " . $pluginName);

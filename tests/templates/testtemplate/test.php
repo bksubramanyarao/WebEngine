@@ -1,0 +1,1 @@
+<h1>TEST TEMPLATE <?php echo $content; ?></h1>

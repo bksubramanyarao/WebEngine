@@ -35,6 +35,24 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("<h1>Home page</h1>", $response["output"]);
 	}
 	
+	public function testSetTemplate()
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->setTemplate("testtemplate");
+		$machine->addPage("/", function() {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "Home page"
+				]
+			];
+		});
+		$response = $machine->run();
+		$this->assertEquals("<h1>TEST TEMPLATE Home page</h1>", $response["output"]);
+	}
+	
 	public function testRouteParams()
 	{
 		$req = $this->_request("GET", "/languages/php/5/");
@@ -104,7 +122,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		});
 		$response = $machine->run();
 		$this->assertEquals("Missing template file: "
-			. "tests/templates/non-existent-template.php", $response["output"]);
+			. "tests/templates/default/non-existent-template.php", $response["output"]);
 	}
 	
 	public function testRouteDuplicated()
