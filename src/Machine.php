@@ -105,8 +105,28 @@ class Machine
      *
      * @return string the resulting html output.
      */
-    public function getOutputTemplate($tpl, $data)
+    public function _getOutputTemplate($tpl, $data)
     {
+		$output = "";
+		
+		$template_file_name = $this->_templates_path . $tpl;
+		if (file_exists($template_file_name)) {
+			// data fields are available as regular php variables in templates
+			foreach ($data as $k => $v) {
+				$$k = $v;
+			}
+			
+			ob_start();
+			require($template_file_name);
+			$template = ob_get_contents();
+			ob_end_clean();
+			
+			$output = $this->_populateTemplate($template, $data);
+		} else {
+			$output = "Missing template file: " . $template_file_name;
+		}
+		
+		return $output;
     }
       
     /**
@@ -123,30 +143,32 @@ class Machine
     /**
      * Run the application.
      *
-     * @return void
+     * @return array A response array with "output", "ERROR" fields.
      */
     public function run()
     {
+		$return_value = [];
+		
         $path = $this->_SERVER["REQUEST_URI"];
         $method = $this->_SERVER["REQUEST_METHOD"];
         $route_matchinfo = $this->_matchRoute($path, $method);    
-        if (!route_matchinfo) {
-            return "404";
-        }
-        // execute route callback.
-        $result = call_user_func_array(
-            $route_matchinfo["callback"], 
-            $route_matchinfo["params"]
-        );
-        // if callback redirects, the following instructions will not be
-        // executed.
-        if (!isset($result["template"])) {
-            return "404";
-        }
-        $data = isset($result["data"]) ? $result["data"] : [];
-        $output = $this->_getOutputTemplate($result["template"], $data);
+        if ($route_matchinfo) {
+			// execute route callback.
+			$result = call_user_func_array(
+				$route_matchinfo["callback"], 
+				$route_matchinfo["params"]
+			);
+			// if callback redirects, the following instructions will not be
+			// executed.
+			$data = isset($result["data"]) ? $result["data"] : [];
+			$return_value["output"] = $this->_getOutputTemplate($result["template"], $data);
+		} else {
+			$return_value["ERROR"] = "No route found.";
+		}
         
-        return $output;
+        echo $return_value["output"];
+		
+		return $return_value;
     }
 
     /**
@@ -179,6 +201,7 @@ class Machine
      * @param string $method the request method; either "POST" or "GET".
      *
      * @return array the matched route infos (callback and params).
+     * @return void if a route is not found.
      */
     private function _matchRoute($path, $method)
     {
@@ -219,5 +242,14 @@ class Machine
      */
     private function _populateTemplate($tpl, $data)
     {
+		// populate simple tag with data
+		foreach($data as $k => $v) {
+			// if a string, try the tag substitution
+			if (gettype($v) == "string") {
+				$tpl = str_replace("{{".$k."}}", $v, $tpl);
+			}
+		}
+		
+		return $tpl;
     }
 }
