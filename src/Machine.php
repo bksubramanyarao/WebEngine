@@ -207,6 +207,19 @@ class Machine
     }
 
     /**
+     * Return the template path.
+	 *
+	 * Used to link assets in templates.
+     *
+     * @return string The template path.
+     */
+	public function templatePath()
+	{
+		return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
+			. $this->_template_name . "/";
+	}
+	
+    /**
      * Add a generic route.
      *
      * @param string   $name   the route name.
