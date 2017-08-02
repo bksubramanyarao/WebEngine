@@ -235,6 +235,7 @@ class Machine
             // time to find if the current route matches
             $matches = [];
             $result = preg_match($regexp, $path, $matches);
+			array_shift($matches);
             if ($result == 1) {
                 if (isset($this->_routes[$routename][$method])) {
                     return [
@@ -242,7 +243,7 @@ class Machine
                         "params" => array_merge(
                             // the Machine object is passed as first param
                             [$this], 
-                            isset($matches[1]) ? $matches[1] : []
+                            isset($matches) ? $matches : []
                         )
                     ];
                 }

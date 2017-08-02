@@ -35,6 +35,19 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("<h1>Home page</h1>", $response["output"]);
 	}
 	
+	public function testRouteParams()
+	{
+		$req = $this->_request("GET", "/languages/php/5/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPage("/languages/{language}/{version}/", function($machine, $language, $version) {
+			$this->assertEquals("Machine\Machine", get_class($machine));
+			$this->assertEquals("php", $language);
+			$this->assertEquals("5", $version);
+		});
+		$response = $machine->run();		
+	}
+	
 	public function testActionOk()
 	{
 		$req = $this->_request("POST", "/actionpost/");
