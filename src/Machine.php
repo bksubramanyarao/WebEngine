@@ -203,8 +203,8 @@ class Machine
     public function run()
     {
         $return_value = [
-        "ERROR" => "",
-        "output" => ""
+			"ERROR" => "",
+			"output" => "404"
         ];
         
         $path = $this->_SERVER["REQUEST_URI"];

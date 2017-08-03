@@ -11,5 +11,8 @@
 			<option value="<?php echo $t; ?>"><?php echo $t; ?></option>
 		<?php } ?>
 	</select>
+	<div id="tablecontent">
+		
+	</div>
 </div>
 <?php include("includes/footer.php"); ?>
