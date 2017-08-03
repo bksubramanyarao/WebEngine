@@ -19,4 +19,17 @@ class Link {
 		$r = $this->_machine->getRequest();
 		return "//" . $r["SERVER"]["HTTP_HOST"] . $slug;
 	}
+	
+	public function Active($params)
+	{
+		if (gettype($params) == "string") {
+			$params = [$params];
+		}
+		$slug = $params[0];
+		$r = $this->_machine->getRequest();
+		if ($r["SERVER"]["REQUEST_URI"] == $slug) {
+			return "active";
+		}
+		return "";
+	}
 }

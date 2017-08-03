@@ -6,12 +6,18 @@ $opts = [
 ];
 $machine = new \Machine\Machine($opts);
 $machine->setTemplate("zSinger");
+
 $machine->addPlugin("Link");
+$machine->addPlugin("Form");
 
 $machine->addPage("/", function() {
 	return [
 		"template" => "home.php",
-		"data" => []
+		"data" => [
+			"name" => "Travis",
+			"surname" => "Johnson",
+			"job" => "IT Support Manager<br>& Programmer Analyst"
+		]
 	];
 });
 
@@ -32,6 +38,13 @@ $machine->addPage("/blog/", function() {
 $machine->addPage("/contacts/", function() {
 	return [
 		"template" => "contact.php",
+		"data" => []
+	];
+});
+
+$machine->addPage("/admin/", function($machine) {
+	return [
+		"template" => "admin.php",
 		"data" => []
 	];
 });

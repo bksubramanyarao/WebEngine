@@ -61,10 +61,10 @@
 						<!-- Menu-main -->
 						<div id='cssmenu'>
 							<ul>
-							   <li class="active"><a href='{{Link|Get|/}}'><span>Home</span></a></li>
-							   <li><a href='{{Link|Get|/about/}}'><span>About</span></a></li>
-							   <li><a href='{{Link|Get|/blog/}}'><span>Blog</span></a></li>
-							   <li class='last'><a href='{{Link|Get|/contacts/}}'><span>Contacts</span></a></li>
+							   <li class="{{Link|Active|/}}"><a href='{{Link|Get|/}}'><span>Home</span></a></li>
+							   <li class="{{Link|Active|/about/}}"><a href='{{Link|Get|/about/}}'><span>About</span></a></li>
+							   <li class="{{Link|Active|/blog/}}"><a href='{{Link|Get|/blog/}}'><span>Blog</span></a></li>
+							   <li class="last {{Link|Active|/contacts/}}"><a href='{{Link|Get|/contacts/}}'><span>Contacts</span></a></li>
 							</ul>
 						</div>
 					</div>

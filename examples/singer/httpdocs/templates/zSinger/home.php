@@ -8,8 +8,8 @@
 					<div class="row wrap-box"><!--Start Box-->
 						<div class="col-1-2">
 							<div class="box-text">
-								<h1><span>Hello, I am</span>Travis<br>Johnson</h1>
-								<p class="lead">IT Support Manager<br>& Programmer Analyst</p>
+								<h1><span>Hello, I am</span>{{name}}<br>{{surname}}</h1>
+								<p class="lead">{{job}}</p>
 							</div>
 						</div>
 						<div class="col-1-2">
