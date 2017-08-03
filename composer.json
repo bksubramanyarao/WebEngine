@@ -19,7 +19,7 @@
     "scripts": {
         "phpcs": "phpcs src/Machine.php",
         "phpcbf": "phpcbf src/Machine.php",
-		"phpunit": "phpunit tests/MachineTest.php"
+		"phpunit": "phpunit tests"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.0",

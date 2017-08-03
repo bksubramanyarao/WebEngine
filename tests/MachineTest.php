@@ -222,4 +222,16 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$response = $machine->run();
 		$this->assertEquals("<h1>//localhost:8000/tests/templates/default/</h1>", $response["output"]);
 	}
+	
+	public function testGetRequest()
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$r = $machine->getRequest();
+		
+		$this->assertEquals("GET", $r["SERVER"]["REQUEST_METHOD"]);
+		$this->assertEquals("/", $r["SERVER"]["REQUEST_URI"]);
+		$this->assertEquals("localhost:8000", $r["SERVER"]["HTTP_HOST"]);
+	}
 }

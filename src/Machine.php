@@ -50,6 +50,7 @@ class Machine
      * - POST
      * - COOKIE
      * - templates_path
+     * - plugins_path
      *
      * @param array $opts an array of options.
      */
@@ -166,6 +167,35 @@ class Machine
     }
     
     /**
+     * Return the template path.
+     *
+     * Used to link assets in templates.
+     *
+     * @return string The template path.
+     */
+    public function templatePath()
+    {
+        return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
+        . $this->_template_name . "/";
+    }
+    
+    /**
+     * Return the request infos.
+     *
+     * May be used in plugins.
+     *
+     * @return array Containing SERVER, POST, COOKIE arrays.
+     */
+    public function getRequest()
+    {
+        return [
+        "SERVER" => $this->_SERVER,
+        "POST" => $this->_POST,
+        "COOKIE" => $this->_COOKIE
+        ];
+    }
+    
+    /**
      * Run the application.
      *
      * @return array A response array with "output", "ERROR" fields.
@@ -204,19 +234,6 @@ class Machine
         echo $return_value["output"];
         
         return $return_value;
-    }
-
-    /**
-     * Return the template path.
-     *
-     * Used to link assets in templates.
-     *
-     * @return string The template path.
-     */
-    public function templatePath()
-    {
-        return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
-        . $this->_template_name . "/";
     }
     
     /**

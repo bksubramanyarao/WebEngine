@@ -1,8 +1,12 @@
 <?php
 require("../../../vendor/autoload.php");
 
-$machine = new \Machine\Machine();
+$opts = [
+	"plugins_path" => "../../../plugins/"
+];
+$machine = new \Machine\Machine($opts);
 $machine->setTemplate("zSinger");
+$machine->addPlugin("Link");
 
 $machine->addPage("/", function() {
 	return [
