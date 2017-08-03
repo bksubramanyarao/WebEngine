@@ -208,17 +208,17 @@ class Machine
 
     /**
      * Return the template path.
-	 *
-	 * Used to link assets in templates.
+     *
+     * Used to link assets in templates.
      *
      * @return string The template path.
      */
-	public function templatePath()
-	{
-		return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
-			. $this->_template_name . "/";
-	}
-	
+    public function templatePath()
+    {
+        return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
+        . $this->_template_name . "/";
+    }
+    
     /**
      * Add a generic route.
      *
@@ -336,6 +336,20 @@ class Machine
             // if a string, try the tag substitution
             if (gettype($v) == "string") {
                 $tpl = str_replace("{{".$k."}}", $v, $tpl);
+            }
+        }
+        
+        // make available some machine functions intended to be used in templates
+        // e.g. use {{templatePath}} instead of
+        // echo $this->templatePath();
+        $tags = [];
+        preg_match_all("/{{(.*?)}}/", $tpl, $tags);
+        for ($i = 0; $i < count($tags[0]); $i++) {
+            $parts = explode("|", $tags[1][$i]);
+            $method = array_shift($parts);
+            if (method_exists($this, $method)) {
+                $value = $this->{$method}($parts);
+                $tpl = str_replace($tags[0][$i], $value, $tpl);
             }
         }
         

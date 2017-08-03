@@ -18,19 +18,19 @@
     
     <!-- CSS
 	================================================== -->
-  	<link rel="stylesheet" href="<?php echo $this->templatePath(); ?>css/zerogrid.css">
-	<link rel="stylesheet" href="<?php echo $this->templatePath(); ?>css/style.css">
+  	<link rel="stylesheet" href="{{templatePath}}css/zerogrid.css">
+	<link rel="stylesheet" href="{{templatePath}}css/style.css">
 	
 	<!-- Custom Fonts -->
-    <link href="<?php echo $this->templatePath(); ?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="{{templatePath}}font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 	
 	
-	<link rel="stylesheet" href="<?php echo $this->templatePath(); ?>css/menu.css">
-	<script src="<?php echo $this->templatePath(); ?>js/jquery1111.min.js" type="text/javascript"></script>
-	<script src="<?php echo $this->templatePath(); ?>js/script.js"></script>
+	<link rel="stylesheet" href="{{templatePath}}css/menu.css">
+	<script src="{{templatePath}}js/jquery1111.min.js" type="text/javascript"></script>
+	<script src="{{templatePath}}js/script.js"></script>
 	
 	<!-- Owl Carousel Assets -->
-    <link href="<?php echo $this->templatePath(); ?>owl-carousel/owl.carousel.css" rel="stylesheet">
+    <link href="{{templatePath}}owl-carousel/owl.carousel.css" rel="stylesheet">
 	
 	<!--[if lt IE 8]>
        <div style=' clear: both; text-align:center; position: relative;'>
@@ -40,8 +40,8 @@
       </div>
     <![endif]-->
     <!--[if lt IE 9]>
-		<script src="<?php echo $this->templatePath(); ?>js/html5.js"></script>
-		<script src="<?php echo $this->templatePath(); ?>js/css3-mediaqueries.js"></script>
+		<script src="{{templatePath}}js/html5.js"></script>
+		<script src="{{templatePath}}js/css3-mediaqueries.js"></script>
 	<![endif]-->
 	
 </head>
@@ -53,7 +53,7 @@
 			<div class="zerogrid">
 				<div class="t-center">
 					<a class="site-branding" href="index.html">
-						<img src="<?php echo $this->templatePath(); ?>images/logo.png" width="250px"/>	
+						<img src="{{templatePath}}images/logo.png" width="250px"/>	
 					</a><!-- .site-branding -->
 				</div>
 				<div class="row">
@@ -136,7 +136,7 @@
 						<div class="col-full">
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/1.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/1.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">8</div>
@@ -153,7 +153,7 @@
 							</div>
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/2.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/2.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">5</div>
@@ -170,7 +170,7 @@
 							</div>
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/3.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/3.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">13</div>
@@ -187,7 +187,7 @@
 							</div>
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/4.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/4.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">21</div>
@@ -204,7 +204,7 @@
 							</div>
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/5.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/5.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">28</div>
@@ -221,7 +221,7 @@
 							</div>
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/6.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/6.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">4</div>
@@ -238,7 +238,7 @@
 							</div>
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/7.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/7.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">30</div>
@@ -255,7 +255,7 @@
 							</div>
 							<div class="col-1-4 portfolio-box">
 								<a class="" href="single.html">
-									<div class="portfolio-image" style="background-image: url('<?php echo $this->templatePath(); ?>images/8.jpg')"></div>
+									<div class="portfolio-image" style="background-image: url('{{templatePath}}images/8.jpg')"></div>
 									<div class="portfolio-caption">
 										<div class="portfolio-time">
 											<div class="portfolio-day">8</div>

@@ -11,7 +11,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		return [
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
-				"REQUEST_URI" => $path
+				"REQUEST_URI" => $path,
+				"HTTP_HOST" => "localhost:8000"
 			],
 			"templates_path" => "tests/templates/",
 			"plugins_path" => "tests/plugins/"
@@ -203,5 +204,22 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 
 		$result = $machine->plugin("Sample")->Plugfun("test");
 		$this->assertEquals("Sample plugin function called with params test", $result);
+	}
+	
+	public function testTemplateTag()
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPage("/", function() {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "{{templatePath}}"
+				]
+			];
+		});
+		$response = $machine->run();
+		$this->assertEquals("<h1>//localhost:8000/tests/templates/default/</h1>", $response["output"]);
 	}
 }
