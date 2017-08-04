@@ -4,7 +4,8 @@ var App = (function(){
 		currentTableName: '',
 		fields: [],
 		records: [],
-		selectedId: 0
+		selectedId: 0,
+		pendingUpdates: 0
 	};
 	
 	var init = function() {
@@ -91,6 +92,8 @@ var App = (function(){
 		}
 		
 		// render #breadcrumb
+		$('.goToTableBtn').off('click');
+		
 		if (state.selectedId == 0) {
 			$('#breadcrumb').html('').hide();
 		} else {
@@ -106,6 +109,8 @@ var App = (function(){
 		}
 		
 		// render #detailform
+		$('#detailform form').off('submit');
+	
 		if (state.selectedId == 0) {
 			$('#detailform').html('').hide();
 		} else {
@@ -117,18 +122,36 @@ var App = (function(){
 				html += '	<div class="formfield">' + getFormHtml(field, state.fields[field]) + '</div>';
 				html += '</div>';
 			}
+			html += '	<button>submit</button>';
 			html += '</form>';
 			$('#detailform').html(html).show();
 			
 			// populate fields
 			var record = state.records[state.selectedId];
 			for (var field in state.fields) {
-				$('input[name=' + field + ']').val(record[field]);
+				$('#detailform input[name=' + field + ']').val(record[field]);
 			}
 			
-			$('.goToTableBtn').on('click', function() {
-				state.selectedId = 0;
-				render();
+			$('#detailform form').on('submit', function(evt) {
+				evt.preventDefault();
+				var arr = $(this).serializeArray();
+				var data = {};
+				for (var i = 0; i < arr.length; i++) {
+					data[arr[i].name] = arr[i].value;
+				}
+				
+				state.pendingUpdates++;
+				$.ajax({
+					url: '/admin/api/' + table + '/',
+					type: 'post',
+					data: data,
+					success: function() {
+						state.pendingUpdates--;
+						// real update
+					}
+				});
+				
+				// optimistic update
 			});
 		}		
 		
