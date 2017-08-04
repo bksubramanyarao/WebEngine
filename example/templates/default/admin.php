@@ -14,5 +14,11 @@
 	<div id="tablecontent">
 		
 	</div>
+	<div id="breadcrumb">
+
+	</div>
+	<div id="detailform">
+	
+	</div>
 </div>
 <?php include("includes/footer.php"); ?>
