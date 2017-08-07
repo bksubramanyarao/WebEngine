@@ -7,7 +7,7 @@ composer start
 composer phpunit
 	launch tests for the main Machine class and generate code coverage in coverage/machine
 
-composer phpunit
+composer phpunit_plugins
 	launch tests for plugins and generate code coverage in coverage/plugins
 	
 composer generatedoc

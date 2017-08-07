@@ -14,9 +14,6 @@
  */
 namespace Machine;
 
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
-
 /**
  * Machine
  *
@@ -37,8 +34,6 @@ class Machine
   
     private $_routes;
     private $_plugins;
-    
-    private $_slugify;
   
     private $_templates_path;
     private $_plugins_path;
@@ -68,14 +63,13 @@ class Machine
             ? $opts["templates_path"] : "templates/";
         $this->_plugins_path = isset($opts["plugins_path"]) 
             ? $opts["plugins_path"] : "plugins/";
-        $this->_slugify = new \Cocur\Slugify\Slugify();
         $this->_routes = [];
         $this->_plugins = [];
         $this->_template_name = "default";
 		$this->_response = [
 			"headers" => [],
-			"code" => 404,
-			"reason" => "Not found",
+			"code" => "",
+			"reason" => "",
 			"body" => "",
 			"cookies" => []
 		];
@@ -91,18 +85,8 @@ class Machine
     public function executeHook($arrFunc, $arguments) 
     {
         foreach ($arrFunc as $func) {
-            call_user_func_array($func, $arguments);
+            call_user_func_array($func, array_merge([$this], $arguments));
         }
-    }
-    
-    /**
-     * Utility function to generate a unique id.
-     *
-     * @return string a unique id.
-     */
-    public function uuid()
-    {
-        return \Ramsey\Uuid\Uuid::uuid4();
     }
       
     /**
@@ -137,7 +121,7 @@ class Machine
      *
      * @param string $name the plugin name.
      *
-     * @return string Error
+     * @return Plugin The plugin itself
      */    
     public function addPlugin($name) 
     {
@@ -149,9 +133,7 @@ class Machine
             }
             // instantiate the plugin class passing the Machine object
             $this->_plugins[$name] = new $className($this);
-            return "";
-        } else {
-            return "Unable to find " . $plugin_path;
+            return $this->_plugins[$name];
         }
     }
     
@@ -176,7 +158,10 @@ class Machine
      */
     public function redirect($path)
     {
-        $this->_response["headers"][] = "location: " . $path;
+		if ($this->_response["code"] == "") {
+			$this->_response["code"] = 302;
+			$this->_response["headers"][] = "location: " . $path;
+		}
     }
 	
     /**
@@ -198,8 +183,10 @@ class Machine
      */    
     public function sendError($errnum)
     {
-        $this->_response["code"] = $errnum;
-    }
+		if ($this->_response["code"] == "") {
+			$this->_response["code"] = $errnum;
+		}
+	}
     
     /**
      * Set the template name
@@ -249,28 +236,32 @@ class Machine
      */
     public function run($silent = false)
     {
-        $path = $this->_SERVER["REQUEST_URI"];
-        $method = $this->_SERVER["REQUEST_METHOD"];
-        $route_matchinfo = $this->_matchRoute($path, $method);    
-        if ($route_matchinfo) {
-            // execute route callback.
-            $result = call_user_func_array(
-                $route_matchinfo["callback"], 
-                $route_matchinfo["params"]
-            );
-            // if callback redirects, the following instructions will not be
-            // executed.
-            if (isset($result["data"]) && $result["template"]) {
-                $data = isset($result["data"]) ? $result["data"] : [];
-				$this->_response["code"] = 200;
-				$this->_response["reason"] = "OK";
-                $this->_response["body"] = $this->_getOutputTemplate(
-                    $result["template"], 
-                    $data
-                );
-            }
-        }
-
+		if ($this->_response["code"] == "") {
+			$path = $this->_SERVER["REQUEST_URI"];
+			$method = $this->_SERVER["REQUEST_METHOD"];
+			$route_matchinfo = $this->_matchRoute($path, $method);    
+			
+			if ($route_matchinfo) {
+				// execute route callback.
+				$result = call_user_func_array(
+					$route_matchinfo["callback"], 
+					$route_matchinfo["params"]
+				);
+				if (isset($result["data"]) && $result["template"]) {
+					$data = isset($result["data"]) ? $result["data"] : [];
+					$this->_response["code"] = 200;
+					$this->_response["reason"] = "OK";
+					$this->_response["body"] = $this->_getOutputTemplate(
+						$result["template"], 
+						$data
+					);
+				}
+			} else {
+				$this->_response["code"] = 404;
+				$this->_response["reason"] = "Not found";
+			}
+		}
+		
 		if (!$silent) {
 			foreach ($this->_response["cookies"] as $cookieparams) {
 				call_user_func(setcookie, $cookieparams);

@@ -167,7 +167,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		
 		$machine = new \Machine\Machine($req);
 		$result = $machine->addPlugin("NonExistent");
-		$this->assertEquals("Unable to find tests/machine/plugins/NonExistent.php", $result);
+		$this->assertEquals(NULL, $result);
 	}
 	
 	public function testUsePlugin() 
@@ -249,5 +249,41 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		});
 		$response = $machine->run(true);
 		$this->assertEquals(1, $response["cookies"][0][1]);		
+	}
+	
+	public function testExecuteHook()
+	{
+		$req = $this->_request("POST", "/plugfun/");
+		$machine = new \Machine\Machine($req);
+		$sample = $machine->addPlugin("Sample");
+		$sample->addHook("after_plugfun", function($machine, $param1, $param2) {
+			$machine->redirect("/landing/" . $param1 . "/" . $param2 . "/");
+		});
+		$machine->addAction("/plugfun/", "POST", function($machine) {
+			$machine->plugin("Sample")->Plugfun(["john", "jane"]);
+		});
+		$response = $machine->run(true);
+		
+		$this->assertEquals("location: /landing/john/jane/", $response["headers"][0]);
+	}
+	
+	public function testSendError()
+	{
+		$req = $this->_request("POST", "/myaction/");
+		$machine = new \Machine\Machine($req);
+		$machine->addAction("/myaction/", "POST", function($machine) {
+			$machine->sendError(303);
+			$machine->redirect("/");
+		});
+		$machine->addPage("/", function() {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "home page"
+				]
+			];
+		});
+		$response = $machine->run(true);
+		$this->assertEquals(303, $response["code"]);
 	}
 }
