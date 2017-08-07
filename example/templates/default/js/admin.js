@@ -4,8 +4,7 @@ var App = (function(){
 		currentTableName: '',
 		fields: [],
 		records: [],
-		selectedId: 0,
-		pendingUpdates: 0
+		selectedId: 0
 	};
 	
 	var init = function() {
@@ -131,27 +130,35 @@ var App = (function(){
 			for (var field in state.fields) {
 				$('#detailform input[name=' + field + ']').val(record[field]);
 			}
+			$('#detailform input[name=id]').attr('disabled', 'disabled');
 			
 			$('#detailform form').on('submit', function(evt) {
 				evt.preventDefault();
-				var arr = $(this).serializeArray();
+				
+				// obtain a new data object
 				var data = {};
+				var arr = $(this).serializeArray();
 				for (var i = 0; i < arr.length; i++) {
 					data[arr[i].name] = arr[i].value;
 				}
 				
-				state.pendingUpdates++;
 				$.ajax({
-					url: '/admin/api/' + table + '/',
+					url: '/admin/api/' + state.currentTableName + '/' + state.selectedId + '/',
 					type: 'post',
 					data: data,
-					success: function() {
-						state.pendingUpdates--;
-						// real update
+					success: function(json) {
+						for (var field in state.fields) {
+							if (field != 'id') {
+								state.records[state.selectedId][field] = data[field];
+							}
+						}
+						state.selectedId = 0;
+						render();
+					},
+					error: function() {
+						alert('something went wrong!');
 					}
 				});
-				
-				// optimistic update
 			});
 		}		
 		

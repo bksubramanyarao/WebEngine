@@ -153,7 +153,20 @@ class Machine
         header("location: " . $path);
         die();
     }
-  
+
+    /**
+     * Send error header
+     *
+     * @param string $errnum The HTTP error number
+     *
+     * @return void
+     */	
+	public function sendError($errnum)
+	{
+		http_response_code($errnum);
+		die();
+	}
+	
     /**
      * Set the template name
      *
@@ -194,7 +207,7 @@ class Machine
         "COOKIE" => $this->_COOKIE
         ];
     }
-    
+	
     /**
      * Run the application.
      *

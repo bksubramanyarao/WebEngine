@@ -46,6 +46,25 @@ $machine->addAction("/admin/api/{table}/", "GET", function($machine, $table) {
 	die();
 });
 
+$machine->addAction("/admin/api/{table}/{id}/", "POST", function($machine, $table, $id) {
+	$request = $machine->getRequest();
+
+	$db = $machine->plugin("Database");
+	$item = $db->getItem($table, $id);	
+	
+	foreach ($request["POST"] as $field => $value) {
+		$item->{$field} = $value;
+	}
+	$result = $db->update($item);
+	
+	if (is_null($result)) {
+		$machine->sendError("400");
+	}
+	
+	echo json_encode($result);
+	die();
+});
+
 $machine->addAction("/admin/tools/populate-db/", "GET", function($machine) {
 	$db = $machine->plugin("Database");
 	$db->addItem("slide", [

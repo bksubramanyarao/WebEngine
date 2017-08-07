@@ -28,14 +28,28 @@ class Database {
 		R::setup('mysql:host=' . $db_host . ';dbname=' . $db_name, $db_user, $db_pass);
 	}
 	
+	/**
+	 * Find with sql condition
+	 */
 	public function find($collectionName, $sqlCondition, $boundData = []) 
 	{
 		return R::find($collectionName, " " . $sqlCondition . " ", $boundData);
 	}
-	
+
+	/**
+	 * Find with sql condition
+	 */	
 	public function findAll($collectionName) 
 	{
 		return R::findAll($collectionName);
+	}
+	
+	/**
+	 * Get an item by id
+	 */
+	public function getItem($table, $id) 
+	{
+		return R::load($table, $id);
 	}
 	
 	public function getTables()
@@ -46,6 +60,11 @@ class Database {
 	public function getFields($tablename)
 	{
 		return R::inspect($tablename);
+	}
+	
+	public function update($bean) 
+	{
+		return R::store($bean);
 	}
 	
 	public function addItem($collectionName, $data) 
