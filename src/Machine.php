@@ -45,7 +45,6 @@ class Machine
     
     private $_template_name;
 	
-	private $_request;
 	private $_response;
     
     /**
@@ -73,6 +72,13 @@ class Machine
         $this->_routes = [];
         $this->_plugins = [];
         $this->_template_name = "default";
+		$this->_response = [
+			"headers" => [],
+			"code" => 404,
+			"reason" => "Not found",
+			"body" => "",
+			"cookies" => []
+		];
     }
   
     /**
@@ -170,9 +176,18 @@ class Machine
      */
     public function redirect($path)
     {
-        header("location: " . $path);
-        die();
+        $this->_response["headers"][] = "location: " . $path;
     }
+	
+    /**
+     * PHP setCookie wrapper
+     *
+     * @return void
+     */
+	public function setCookie()
+	{
+		$this->_response["cookies"][] = func_get_args();
+	}
 
     /**
      * Send error header
@@ -183,8 +198,7 @@ class Machine
      */    
     public function sendError($errnum)
     {
-        http_response_code($errnum);
-        die();
+        $this->_response["code"] = $errnum;
     }
     
     /**
@@ -209,7 +223,7 @@ class Machine
     public function templatePath()
     {
         return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
-        . $this->_template_name . "/";
+			. $this->_template_name . "/";
     }
     
     /**
@@ -222,9 +236,9 @@ class Machine
     public function getRequest()
     {
         return [
-        "SERVER" => $this->_SERVER,
-        "POST" => $this->_POST,
-        "COOKIE" => $this->_COOKIE
+			"SERVER" => $this->_SERVER,
+			"POST" => $this->_POST,
+			"COOKIE" => $this->_COOKIE
         ];
     }
     
@@ -233,13 +247,8 @@ class Machine
      *
      * @return array A response array with "output", "ERROR" fields.
      */
-    public function run()
+    public function run($silent = false)
     {
-        $return_value = [
-        "ERROR" => "",
-        "output" => "404"
-        ];
-        
         $path = $this->_SERVER["REQUEST_URI"];
         $method = $this->_SERVER["REQUEST_METHOD"];
         $route_matchinfo = $this->_matchRoute($path, $method);    
@@ -253,20 +262,34 @@ class Machine
             // executed.
             if (isset($result["data"]) && $result["template"]) {
                 $data = isset($result["data"]) ? $result["data"] : [];
-                $return_value["output"] = $this->_getOutputTemplate(
+				$this->_response["code"] = 200;
+				$this->_response["reason"] = "OK";
+                $this->_response["body"] = $this->_getOutputTemplate(
                     $result["template"], 
                     $data
                 );
-            } else {
-                $return_value["ERROR"] = "Callback redirect missing.";
             }
-        } else {
-            $return_value["ERROR"] = "No route found.";
         }
-        
-        echo $return_value["output"];
-        
-        return $return_value;
+
+		if (!$silent) {
+			foreach ($this->_response["cookies"] as $cookieparams) {
+				call_user_func(setcookie, $cookieparams);
+			}
+			
+			foreach ($this->_response["headers"] as $header) {
+				header($header);
+			}
+			
+			http_response_code($this->_response["code"]);
+		
+			if ($this->_response["code"] == 200) {
+				echo $this->_response["body"];
+			} else {
+				echo $this->_response["reason"];
+			}
+        }
+		
+        return $this->_response;
     }
     
     /**
