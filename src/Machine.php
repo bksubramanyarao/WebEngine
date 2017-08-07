@@ -14,6 +14,9 @@
  */
 namespace Machine;
 
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+
 /**
  * Machine
  *
@@ -41,6 +44,9 @@ class Machine
     private $_plugins_path;
     
     private $_template_name;
+	
+	private $_request;
+	private $_response;
     
     /**
      * Create new machine.

@@ -19,12 +19,12 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 		];
 	}
 	
-	public function testUsePlugin() 
+	public function testGet() 
 	{
 		$req = $this->_request("GET", "/");
 		
 		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Link");
+		$machine->addPlugin("Link");	
 		$machine->addPage("/", function($machine) {
 			return [
 				"template" => "test.php",
@@ -34,10 +34,32 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 			];
 		});
 		$response = $machine->run();
+		$link = $machine->plugin("Link")->Get("/testlink/");
 		
 		$this->assertEquals("<h1>//localhost:8000/testlink/</h1>", $response["output"]);
-		
-		$link = $machine->plugin("Link")->Get("/testlink/");
 		$this->assertEquals("//localhost:8000/testlink/", $link);	
+	}
+	
+	public function testActive()
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPlugin("Link");	
+		$machine->addPage("/", function($machine) {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "<span>{{Link|Active|/}}</span><span>{{Link|Active|/contacts/}}</span>"
+				]
+			];
+		});
+		$response = $machine->run();
+		
+		$this->assertEquals("<h1><span>active</span><span></span></h1>", $response["output"]);
+		$this->assertEquals("active", $machine->plugin("Link")->Active("/"));
+		$this->assertEquals("active", $machine->plugin("Link")->Active(["/"]));
+		$this->assertEquals("", $machine->plugin("Link")->Active("/contacts/"));
+		$this->assertEquals("", $machine->plugin("Link")->Active(["/contacts/"]));
 	}
 }

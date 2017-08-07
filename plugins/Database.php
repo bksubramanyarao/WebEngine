@@ -98,7 +98,7 @@ class Database
             $item->{$k} = $v;
         }
         $id = R::store($item);
-        return $item;
+        return $id;
     }
     
     // ========================================================================
@@ -113,7 +113,7 @@ class Database
      *
      * @return object The requested record.
      */
-    public function find($table, $id) 
+    public function load($table, $id) 
     {
         return R::load($table, $id);
     }
