@@ -14,7 +14,7 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 				"REQUEST_URI" => $path,
 				"HTTP_HOST" => "localhost:8000"
 			],
-			"templates_path" => "tests/templates/",
+			"templates_path" => "tests/machine/templates/",
 			"plugins_path" => "plugins/"
 		];
 	}

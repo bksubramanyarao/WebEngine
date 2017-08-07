@@ -70,6 +70,19 @@ class Machine
     }
   
     /**
+     * Executes an hook.
+     *
+	 * This is intended to be executed by plugins.
+	 *
+     * @return void
+     */
+ 	public function executeHook($arrFunc, $arguments) {
+		foreach ($arrFunc as $func) {
+			call_user_func_array($func, $arguments);
+		}
+	}
+	
+    /**
      * Utility function to generate a unique id.
      *
      * @return string a unique id.

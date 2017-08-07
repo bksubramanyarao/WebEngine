@@ -14,8 +14,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				"REQUEST_URI" => $path,
 				"HTTP_HOST" => "localhost:8000"
 			],
-			"templates_path" => "tests/templates/",
-			"plugins_path" => "tests/plugins/"
+			"templates_path" => "tests/machine/templates/",
+			"plugins_path" => "tests/machine/plugins/"
 		];
 	}
 	
@@ -123,7 +123,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		});
 		$response = $machine->run();
 		$this->assertEquals("Missing template file: "
-			. "tests/templates/default/non-existent-template.php", $response["output"]);
+			. "tests/machine/templates/default/non-existent-template.php", $response["output"]);
 	}
 	
 	public function testRouteDuplicated()
@@ -162,7 +162,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		
 		$machine = new \Machine\Machine($req);
 		$result = $machine->addPlugin("NonExistent");
-		$this->assertEquals("Unable to find tests/plugins/NonExistent.php", $result);
+		$this->assertEquals("Unable to find tests/machine/plugins/NonExistent.php", $result);
 	}
 	
 	public function testUsePlugin() 
@@ -220,7 +220,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 			];
 		});
 		$response = $machine->run();
-		$this->assertEquals("<h1>//localhost:8000/tests/templates/default/</h1>", $response["output"]);
+		$this->assertEquals("<h1>//localhost:8000/tests/machine/templates/default/</h1>", $response["output"]);
 	}
 	
 	public function testGetRequest()

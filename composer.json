@@ -19,8 +19,9 @@
     "scripts": {
         "phpcs": "phpcs src/Machine.php",
         "phpcbf": "phpcbf src/Machine.php",
-		"generatedoc": "php phpDocumentor.phar src doc",
-		"phpunit": "phpunit tests",
+		"generatedoc": "php phpDocumentor.phar -d src,plugins -t docs",
+		"phpunit": "phpunit tests/machine --whitelist src --coverage-html coverage/machine",
+		"phpunit_plugins": "phpunit tests/plugins --whitelist plugins --coverage-html coverage/plugins",
 		"start": "php -S localhost:8000 -t example"
     },
     "require-dev": {
