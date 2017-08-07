@@ -72,16 +72,17 @@ class Machine
     /**
      * Executes an hook.
      *
-	 * This is intended to be executed by plugins.
-	 *
+     * This is intended to be executed by plugins.
+     *
      * @return void
      */
- 	public function executeHook($arrFunc, $arguments) {
-		foreach ($arrFunc as $func) {
-			call_user_func_array($func, $arguments);
-		}
-	}
-	
+    public function executeHook($arrFunc, $arguments) 
+    {
+        foreach ($arrFunc as $func) {
+            call_user_func_array($func, $arguments);
+        }
+    }
+    
     /**
      * Utility function to generate a unique id.
      *
@@ -173,13 +174,13 @@ class Machine
      * @param string $errnum The HTTP error number
      *
      * @return void
-     */	
-	public function sendError($errnum)
-	{
-		http_response_code($errnum);
-		die();
-	}
-	
+     */    
+    public function sendError($errnum)
+    {
+        http_response_code($errnum);
+        die();
+    }
+    
     /**
      * Set the template name
      *
@@ -220,7 +221,7 @@ class Machine
         "COOKIE" => $this->_COOKIE
         ];
     }
-	
+    
     /**
      * Run the application.
      *
@@ -229,8 +230,8 @@ class Machine
     public function run()
     {
         $return_value = [
-			"ERROR" => "",
-			"output" => "404"
+        "ERROR" => "",
+        "output" => "404"
         ];
         
         $path = $this->_SERVER["REQUEST_URI"];
