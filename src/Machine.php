@@ -385,7 +385,7 @@ class Machine
             $template = ob_get_contents();
             ob_end_clean();
             
-            $output = $this->_populateTemplate($template, $data);
+            $output = $this->populateTemplate($template, $data);
         } else {
             $output = "Missing template file: " . $template_file_name;
         }
@@ -395,13 +395,15 @@ class Machine
     
     /**
      * Mixes a plain html template with data
+	 *
+	 * This is public in order to be used by plugins
      *
      * @param string $tpl  the template file name
      * @param array  $data an associative array of data fields.
      *
      * @return string the resulting html output.
      */
-    private function _populateTemplate($tpl, $data)
+    public function populateTemplate($tpl, $data)
     {
         // populate simple tag with data
         foreach ($data as $k => $v) {
