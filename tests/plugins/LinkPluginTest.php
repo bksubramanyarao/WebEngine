@@ -33,10 +33,10 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run();
+		$response = $machine->run(true);
 		$link = $machine->plugin("Link")->Get("/testlink/");
 		
-		$this->assertEquals("<h1>//localhost:8000/testlink/</h1>", $response["output"]);
+		$this->assertEquals("<h1>//localhost:8000/testlink/</h1>", $response["body"]);
 		$this->assertEquals("//localhost:8000/testlink/", $link);	
 	}
 	
@@ -54,9 +54,9 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run();
+		$response = $machine->run(true);
 		
-		$this->assertEquals("<h1><span>active</span><span></span></h1>", $response["output"]);
+		$this->assertEquals("<h1><span>active</span><span></span></h1>", $response["body"]);
 		$this->assertEquals("active", $machine->plugin("Link")->Active("/"));
 		$this->assertEquals("active", $machine->plugin("Link")->Active(["/"]));
 		$this->assertEquals("", $machine->plugin("Link")->Active("/contacts/"));

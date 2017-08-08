@@ -25,7 +25,7 @@ class DatabasePluginTest extends \PHPUnit_Framework_TestCase
 		
 		$machine = new \Machine\Machine($req);
 		$machine->addPlugin("Database");	
-		$response = $machine->run();
+		$response = $machine->run(true);
 		
 		$db = $machine->plugin("Database");
 		$db->setupSqlite("testdb");
@@ -65,5 +65,6 @@ class DatabasePluginTest extends \PHPUnit_Framework_TestCase
 		$db->update($jane);
 		$actived = $db->find("tabletest", "active = 1");
 		$this->assertEquals(2, count($actived));
+		$db->close();
 	}
 }

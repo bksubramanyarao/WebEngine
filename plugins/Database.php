@@ -61,7 +61,9 @@ class Database
      */
     public function setupSqlite($db_file)
     {
-        R::setup('sqlite:' . $db_file);
+		if (!R::hasDatabase("default")) {
+			R::setup('sqlite:' . $db_file);
+		}
     }
     
     /**
@@ -78,6 +80,11 @@ class Database
     {
         R::setup('mysql:host=' . $db_host . ';dbname=' . $db_name, $db_user, $db_pass);
     }
+	
+	public function close()
+	{
+		R::close();
+	}
     
     // ========================================================================
     //	Create
@@ -129,6 +136,13 @@ class Database
     {
         return R::findAll($table);
     }
+	
+	/**
+	 * Find an item by a unique field
+	 */
+	public function findField($table, $field, $value) {
+		return R::findOne($table, " $field = ? ", [$value]);
+	}
     
     /**
      * Find with sql condition

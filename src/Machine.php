@@ -232,22 +232,24 @@ class Machine
     /**
      * Run the application.
      *
-     * @return array A response array with "output", "ERROR" fields.
+     * @return array A response array
      */
     public function run($silent = false)
     {
-		if ($this->_response["code"] == "") {
-			$path = $this->_SERVER["REQUEST_URI"];
-			$method = $this->_SERVER["REQUEST_METHOD"];
-			$route_matchinfo = $this->_matchRoute($path, $method);    
-			
-			if ($route_matchinfo) {
-				// execute route callback.
-				$result = call_user_func_array(
-					$route_matchinfo["callback"], 
-					$route_matchinfo["params"]
-				);
+		$path = $this->_SERVER["REQUEST_URI"];
+		$method = $this->_SERVER["REQUEST_METHOD"];
+		$route_matchinfo = $this->_matchRoute($path, $method);    
+		
+		if ($route_matchinfo) {
+			// execute route callback.
+			$result = call_user_func_array(
+				$route_matchinfo["callback"], 
+				$route_matchinfo["params"]
+			);
+			// the callback may set some response. if not, look for the template.
+			if ($this->_response["code"] == "") {
 				if (isset($result["data"]) && $result["template"]) {
+					// page found. 200 OK
 					$data = isset($result["data"]) ? $result["data"] : [];
 					$this->_response["code"] = 200;
 					$this->_response["reason"] = "OK";
@@ -255,11 +257,17 @@ class Machine
 						$result["template"], 
 						$data
 					);
+				} else {
+					// a route was found but nor a response was set or a 
+					//	page was found.
+					$this->_response["code"] = 404;
+					$this->_response["reason"] = "Not found";					
 				}
-			} else {
-				$this->_response["code"] = 404;
-				$this->_response["reason"] = "Not found";
-			}
+			} // else a response has been set by the callback function.			
+		} else {
+			// no route was found matching the request.
+			$this->_response["code"] = 404;
+			$this->_response["reason"] = "Not found";
 		}
 		
 		if (!$silent) {

@@ -14,6 +14,8 @@
  */
 namespace Plugin;
 
+use \Ramsey\Uuid\Uuid;
+
 /**
  * Auth class
  *
@@ -29,8 +31,8 @@ namespace Plugin;
 class Auth
 {
     
-    private $machine;
-    private $data_callback;
+    private $_machine;
+    private $_data_callback;
     
     public $logged_user_id;
     public $data;
@@ -46,7 +48,7 @@ class Auth
      */
     function __construct($machine) 
     {
-        $this->machine = $machine;
+        $this->_machine = $machine;
 		
 		$this->logged_user_id = 0;
 		$this->data = [];
@@ -63,7 +65,7 @@ class Auth
 	 */
     public function setDataCallback($func) 
     {
-        $this->data_callback = $func; 
+        $this->_data_callback = $func; 
     }
     
 	/**
@@ -78,16 +80,16 @@ class Auth
 	 */	
     public function generateAuthCookies($user_id) 
     {
-        $req = $this->machine->getRequest();
+        $req = $this->_machine->getRequest();
         
         // generate a unique session code.
-        $sessioncode = md5($this->machine->uuid());
+        $sessioncode = md5($this->_uuid());
         
         // set the auth cookie with the session code.
-        setcookie(self::AUTH_COOKIE_NAME, $sessioncode, 0, "/");
+        $this->_machine->setCookie(self::AUTH_COOKIE_NAME, $sessioncode, 0, "/");
         
         // save session in db.
-        $this->machine->plugin("Database")->addItem(
+        $this->_machine->plugin("Database")->addItem(
             "loginsession", [
             "user_id" => $user_id,
             "sessioncode" => $sessioncode,
@@ -110,22 +112,26 @@ class Auth
         $this->data = [];
         
         // retrieve cookie value
-        $req = $this->machine->getRequest();
+        $req = $this->_machine->getRequest();
         if (isset($req["COOKIE"][self::AUTH_COOKIE_NAME])) {
             $sessioncode = $req["COOKIE"][self::AUTH_COOKIE_NAME];
             // get the session in db
-            $session = $this->machine->plugin("Database")->getItemByField("loginsession", "sessioncode", $sessioncode);
-            if ($session) {
+            $session = $this->_machine->plugin("Database")->findField("loginsession", "sessioncode", $sessioncode);
+			if ($session) {
                 // additional check based on ip
                 if ($session->ip == $req["SERVER"]["REMOTE_ADDR"]) {
                     // return the user id
                     $this->logged_user_id = $session->user_id;
                     // execute data_callback
-                    if ($this->data_callback) {
-                        $this->data = call_user_func_array($this->data_callback, [$this->machine, $this->logged_user_id]);
+                    if ($this->_data_callback) {
+                        $this->data = call_user_func_array($this->_data_callback, [$this->_machine, $this->logged_user_id]);
                     }
                 }
             }
         }
     }
+	
+	private function _uuid() {
+		return Uuid::uuid4();
+	}
 }
