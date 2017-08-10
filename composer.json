@@ -6,6 +6,8 @@
             "email": "paooolino@gmail.com"
         }
     ],
+    "homepage": "https://github.com/paooolino/Machine",
+    "license": "Apache 2.0",
     "require": {
         "gabordemooij/redbean": "^4.3",
         "ramsey/uuid": "^3.6",
