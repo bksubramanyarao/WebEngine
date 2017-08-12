@@ -62,4 +62,26 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("", $machine->plugin("Link")->Active("/contacts/"));
 		$this->assertEquals("", $machine->plugin("Link")->Active(["/contacts/"]));
 	}
+	
+	public function testSetName() 
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPlugin("Link");
+		$machine->plugin("Link")->setName("CONTACT_PAGE", "/contacts/");
+		
+		$machine->addPage("/", function($machine) {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "{{Link|GetName|CONTACT_PAGE}}"
+				]
+			];
+		});
+		
+		$response = $machine->run(true);
+		
+		$this->assertEquals("<h1>//localhost:8000/contacts/</h1>", $response["body"]);
+	}
 }
