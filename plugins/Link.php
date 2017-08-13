@@ -57,10 +57,26 @@ class Link
         if (gettype($params) == "string") {
             $params = [$params];
         }
-        $name = $params[0];
-		$slug = isset($this->_routes[$name]) ? $this->_routes[$name] : $name;
+        // the first get param may be a route or a route name
+		$name = $params[0];
+		$route = isset($this->_routes[$name]) ? $this->_routes[$name] : $name;
+		
+		// find and fill route parameters with get parameters
+		if (count($params) > 1) {
+			$matches = [];
+			$regexp = "/\{(.*?)\}/";
+			$result = preg_match_all($regexp, $route, $matches);
+			for ($i = 0; $i < count($matches[0]); $i++) {
+				if (isset($params[$i+1])) {
+					$route = str_replace($matches[0][$i], $params[$i+1], $route);
+				} else {
+					break;
+				}
+			}
+		}
+		
 		$r = $this->_machine->getRequest();
-        return "//" . $r["SERVER"]["HTTP_HOST"] . $slug;
+        return "//" . $r["SERVER"]["HTTP_HOST"] . $route;
     }
     
     /**

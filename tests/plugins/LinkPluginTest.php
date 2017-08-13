@@ -40,6 +40,18 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("//localhost:8000/testlink/", $link);	
 	}
 	
+	public function testParametrizedGet()
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$Link = $machine->addPlugin("Link");	
+		$Link->setRoute("LANGUAGE_PAGE", "/language/{lang}/{version}/");
+		$the_link = $Link->Get(["LANGUAGE_PAGE", "php", "5"]);
+		
+		$this->assertEquals("//localhost:8000/language/php/5/", $the_link);
+	}
+	
 	public function testActive()
 	{
 		$req = $this->_request("GET", "/");
