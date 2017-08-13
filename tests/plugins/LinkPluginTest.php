@@ -65,17 +65,16 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 	
 	public function testSetName() 
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_request("GET", "/contacts/");
 		
 		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Link");
-		$machine->plugin("Link")->setName("CONTACT_PAGE", "/contacts/");
-		
-		$machine->addPage("/", function($machine) {
+		$Link = $machine->addPlugin("Link");
+		$Link->setRoute("CONTACT_PAGE", "/contacts/");
+		$machine->addPage($Link->getRoute("CONTACT_PAGE"), function($machine) {
 			return [
 				"template" => "test.php",
 				"data" => [
-					"content" => "{{Link|GetName|CONTACT_PAGE}}"
+					"content" => "{{Link|Get|CONTACT_PAGE}}"
 				]
 			];
 		});

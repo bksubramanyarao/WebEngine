@@ -30,7 +30,7 @@ class Link
 {
     private $_machine;
     
-	private $_names;
+	private $_routes;
 	
     /**
      * Link plugin constructor.
@@ -42,11 +42,11 @@ class Link
     public function __construct($machine)
     {
         $this->_machine = $machine;
-		$this->_names = [];
+		$this->_routes = [];
     }
     
     /**
-     * Given a slug, gives the complete link.
+     * Given a name or a slug, gives the complete link.
      *
      * @param array $params
      *
@@ -57,8 +57,9 @@ class Link
         if (gettype($params) == "string") {
             $params = [$params];
         }
-        $slug = $params[0];
-        $r = $this->_machine->getRequest();
+        $name = $params[0];
+		$slug = isset($this->_routes[$name]) ? $this->_routes[$name] : $name;
+		$r = $this->_machine->getRequest();
         return "//" . $r["SERVER"]["HTTP_HOST"] . $slug;
     }
     
@@ -84,31 +85,33 @@ class Link
     }
 	
     /**
-     * Set a value for the names dictionary.
+     * Set a name for a route.
      *
 	 * @param string $name A name for the route.
      * @param string $route The route to map.
 	 *
      * @return void
      */
-	public function setName($name, $route)
+	public function setRoute($name, $route)
 	{
-		$this->_names[$name] = $route;
+		$this->_routes[$name] = $route;
 	}
 	
     /**
-     * Return the complete link for the route mapped to a name.
+     * Return the route mapped to a name.
      *
-	 * @param string $name The mapped name.
+	 * @param array $params
 	 *
-     * @return string The complete link if route if defined, otherwise false.
+     * @return string The route name.
      */
-	public function GetName($params)
+	public function GetRoute($params)
 	{
         if (gettype($params) == "string") {
             $params = [$params];
         }
 		$name = $params[0];
-		return isset($this->_names[$name]) ? $this->Get($this->_names[$name]) : false;
+		return isset($this->_routes[$name]) ? $this->_routes[$name] : false;
 	}
 }
+
+
