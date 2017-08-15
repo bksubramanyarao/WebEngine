@@ -29,6 +29,7 @@ namespace Machine;
 class Machine
 {
     private $_SERVER;
+    private $_GET;
     private $_POST;
     private $_COOKIE;
   
@@ -57,6 +58,7 @@ class Machine
     public function __construct($opts=[])
     {
         $this->_SERVER = isset($opts["SERVER"]) ? $opts["SERVER"] : $_SERVER;
+        $this->_GET = isset($opts["GET"]) ? $opts["GET"] : $_GET;
         $this->_POST = isset($opts["POST"]) ? $opts["POST"] : $_POST;
         $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
         $this->_templates_path = isset($opts["templates_path"]) 
@@ -223,9 +225,10 @@ class Machine
     public function getRequest()
     {
         return [
-        "SERVER" => $this->_SERVER,
-        "POST" => $this->_POST,
-        "COOKIE" => $this->_COOKIE
+			"SERVER" => $this->_SERVER,
+			"POST" => $this->_POST,
+			"COOKIE" => $this->_COOKIE,
+			"GET" => $this->_GET
         ];
     }
     
