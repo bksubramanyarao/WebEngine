@@ -39,8 +39,8 @@ class Machine
     private $_plugins_path;
     
     private $_template_name;
-	
-	private $_response;
+    
+    private $_response;
     
     /**
      * Create new machine.
@@ -66,13 +66,13 @@ class Machine
         $this->_routes = [];
         $this->_plugins = [];
         $this->_template_name = "default";
-		$this->_response = [
-			"headers" => [],
-			"code" => "",
-			"reason" => "",
-			"body" => "",
-			"cookies" => []
-		];
+        $this->_response = [
+        "headers" => [],
+        "code" => "",
+        "reason" => "",
+        "body" => "",
+        "cookies" => []
+        ];
     }
   
     /**
@@ -158,21 +158,21 @@ class Machine
      */
     public function redirect($path)
     {
-		if ($this->_response["code"] == "") {
-			$this->_response["code"] = 302;
-			$this->_response["headers"][] = "location: " . $path;
-		}
+        if ($this->_response["code"] == "") {
+            $this->_response["code"] = 302;
+            $this->_response["headers"][] = "location: " . $path;
+        }
     }
-	
+    
     /**
      * PHP setCookie wrapper
      *
      * @return void
      */
-	public function setCookie()
-	{
-		$this->_response["cookies"][] = func_get_args();
-	}
+    public function setCookie()
+    {
+        $this->_response["cookies"][] = func_get_args();
+    }
 
     /**
      * Send error header
@@ -181,12 +181,12 @@ class Machine
      *
      * @return void
      */    
-    public function sendError($errnum)
+    public function setResponseCode($errnum)
     {
-		if ($this->_response["code"] == "") {
-			$this->_response["code"] = $errnum;
-		}
-	}
+        if ($this->_response["code"] == "") {
+            $this->_response["code"] = $errnum;
+        }
+    }
     
     /**
      * Set the template name
@@ -210,7 +210,7 @@ class Machine
     public function templatePath()
     {
         return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
-			. $this->_template_name . "/";
+        . $this->_template_name . "/";
     }
     
     /**
@@ -223,9 +223,9 @@ class Machine
     public function getRequest()
     {
         return [
-			"SERVER" => $this->_SERVER,
-			"POST" => $this->_POST,
-			"COOKIE" => $this->_COOKIE
+        "SERVER" => $this->_SERVER,
+        "POST" => $this->_POST,
+        "COOKIE" => $this->_COOKIE
         ];
     }
     
@@ -236,58 +236,58 @@ class Machine
      */
     public function run($silent = false)
     {
-		$path = $this->_SERVER["REQUEST_URI"];
-		$method = $this->_SERVER["REQUEST_METHOD"];
-		$route_matchinfo = $this->_matchRoute($path, $method);    
-		
-		if ($route_matchinfo) {
-			// execute route callback.
-			$result = call_user_func_array(
-				$route_matchinfo["callback"], 
-				$route_matchinfo["params"]
-			);
-			// the callback may set some response. if not, look for the template.
-			if ($this->_response["code"] == "") {
-				if (isset($result["data"]) && $result["template"]) {
-					// page found. 200 OK
-					$data = isset($result["data"]) ? $result["data"] : [];
-					$this->_response["code"] = 200;
-					$this->_response["reason"] = "OK";
-					$this->_response["body"] = $this->_getOutputTemplate(
-						$result["template"], 
-						$data
-					);
-				} else {
-					// a route was found but nor a response was set or a 
-					//	page was found.
-					$this->_response["code"] = 404;
-					$this->_response["reason"] = "Not found";					
-				}
-			} // else a response has been set by the callback function.			
-		} else {
-			// no route was found matching the request.
-			$this->_response["code"] = 404;
-			$this->_response["reason"] = "Not found";
-		}
-		
-		if (!$silent) {
-			foreach ($this->_response["cookies"] as $cookieparams) {
-				call_user_func(setcookie, $cookieparams);
-			}
-			
-			foreach ($this->_response["headers"] as $header) {
-				header($header);
-			}
-			
-			http_response_code($this->_response["code"]);
-		
-			if ($this->_response["code"] == 200) {
-				echo $this->_response["body"];
-			} else {
-				echo $this->_response["reason"];
-			}
+        $path = $this->_SERVER["REQUEST_URI"];
+        $method = $this->_SERVER["REQUEST_METHOD"];
+        $route_matchinfo = $this->_matchRoute($path, $method);    
+        
+        if ($route_matchinfo) {
+            // execute route callback.
+            $result = call_user_func_array(
+                $route_matchinfo["callback"], 
+                $route_matchinfo["params"]
+            );
+            // the callback may set some response. if not, look for the template.
+            if ($this->_response["code"] == "") {
+                if (isset($result["data"]) && $result["template"]) {
+                    // page found. 200 OK
+                    $data = isset($result["data"]) ? $result["data"] : [];
+                    $this->_response["code"] = 200;
+                    $this->_response["reason"] = "OK";
+                    $this->_response["body"] = $this->_getOutputTemplate(
+                        $result["template"], 
+                        $data
+                    );
+                } else {
+                    // a route was found but nor a response was set or a 
+                    //	page was found.
+                    $this->_response["code"] = 404;
+                    $this->_response["reason"] = "Not found";                    
+                }
+            } // else a response has been set by the callback function.			
+        } else {
+            // no route was found matching the request.
+            $this->_response["code"] = 404;
+            $this->_response["reason"] = "Not found";
         }
-		
+        
+        if (!$silent) {
+            foreach ($this->_response["cookies"] as $cookieparams) {
+                call_user_func(setcookie, $cookieparams);
+            }
+            
+            foreach ($this->_response["headers"] as $header) {
+                header($header);
+            }
+            
+            http_response_code($this->_response["code"]);
+        
+            if ($this->_response["code"] == 200) {
+                echo $this->_response["body"];
+            } else {
+                echo $this->_response["reason"];
+            }
+        }
+        
         return $this->_response;
     }
     
@@ -395,8 +395,8 @@ class Machine
     
     /**
      * Mixes a plain html template with data
-	 *
-	 * This is public in order to be used by plugins
+     *
+     * This is public in order to be used by plugins
      *
      * @param string $tpl  the template file name
      * @param array  $data an associative array of data fields.

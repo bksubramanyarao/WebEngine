@@ -272,7 +272,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$req = $this->_request("POST", "/myaction/");
 		$machine = new \Machine\Machine($req);
 		$machine->addAction("/myaction/", "POST", function($machine) {
-			$machine->sendError(303);
+			$machine->setResponseCode(303);
 			$machine->redirect("/");
 		});
 		$machine->addPage("/", function() {
