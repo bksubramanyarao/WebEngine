@@ -178,6 +178,20 @@ class Database
     // ========================================================================	
     
     /**
+     * Get all the complete number of records for a collection
+     *
+	 * @param string $tablename the collection name.
+     * @param string $sqlCondition The condition to append after "WHERE".
+     * @param array  $boundData    The data to bound in the query.
+	 *
+     * @return integer The number of records.
+     */
+    public function countRecords($tablename, $sqlCondition="", $boundData=[])
+    {
+        return R::count($tablename, $sqlCondition, $boundData);
+    }
+	
+    /**
      * Get all the tables in the database
      *
      * @return array The tables list.
