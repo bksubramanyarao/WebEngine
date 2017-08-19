@@ -339,7 +339,7 @@ class Machine
             $matches = [];
             $result = preg_match($regexp, $path, $matches);
             array_shift($matches);
-            if ($result == 1) {
+            if ($result == 1 && $this->_checkMatches($matches)) {
                 if (isset($this->_routes[$routename][$method])) {
                     return [
                         "callback" => $this->_routes[$routename][$method],
@@ -354,6 +354,23 @@ class Machine
         }
     }
   
+    /**
+     * Check if matches aren't containing the slash / character.
+     *
+     * @param array $matches an array of parmeter matches.
+     *
+     * @return boolean
+     */	
+	private function _checkMatches($matches) 
+	{
+		foreach ($matches as $m) {
+			if (strpos($m, '/') !== false) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
     /**
      * Process the template file and mixes it with data.
      *

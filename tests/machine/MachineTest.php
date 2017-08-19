@@ -67,6 +67,31 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$response = $machine->run(true);		
 	}
 	
+	public function testMatchSimilarRoutes()
+	{
+		$req = $this->_request("GET", "/languages/php/6/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPage("/languages/{language}/", function($machine) {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "wrong page"
+				]
+			];
+		});
+		$machine->addPage("/languages/{language}/{id}/", function($machine) {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "right page"
+				]
+			];
+		});
+		$result = $machine->run(true);
+		$this->assertEquals("<h1>right page</h1>", $result["body"]);
+	}
+	
 	public function testActionOk()
 	{
 		$req = $this->_request("POST", "/actionpost/");
