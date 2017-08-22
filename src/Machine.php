@@ -32,6 +32,7 @@ class Machine
     private $_GET;
     private $_POST;
     private $_COOKIE;
+    private $_FILES;
   
     private $_routes;
     private $_plugins;
@@ -61,6 +62,7 @@ class Machine
         $this->_GET = isset($opts["GET"]) ? $opts["GET"] : $_GET;
         $this->_POST = isset($opts["POST"]) ? $opts["POST"] : $_POST;
         $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
+        $this->_FILES = isset($opts["FILES"]) ? $opts["FILES"] : $_FILES;
         $this->_templates_path = isset($opts["templates_path"]) 
             ? $opts["templates_path"] : "templates/";
         $this->_plugins_path = isset($opts["plugins_path"]) 
@@ -228,7 +230,8 @@ class Machine
 			"SERVER" => $this->_SERVER,
 			"POST" => $this->_POST,
 			"COOKIE" => $this->_COOKIE,
-			"GET" => $this->_GET
+			"GET" => $this->_GET,
+			"FILES" => $this->_FILES
         ];
     }
     
