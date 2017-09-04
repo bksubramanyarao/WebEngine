@@ -193,6 +193,18 @@ class Machine
     }
     
     /**
+     * Set response body
+     *
+     * @param string $body The response body
+     *
+     * @return void
+     */    
+    public function setResponseBody($body)
+    {
+        $this->_response["body"] = $body;
+    }
+    
+    /**
      * Set the template name
      *
      * @param string $template_name the template name.
@@ -227,11 +239,11 @@ class Machine
     public function getRequest()
     {
         return [
-			"SERVER" => $this->_SERVER,
-			"POST" => $this->_POST,
-			"COOKIE" => $this->_COOKIE,
-			"GET" => $this->_GET,
-			"FILES" => $this->_FILES
+        "SERVER" => $this->_SERVER,
+        "POST" => $this->_POST,
+        "COOKIE" => $this->_COOKIE,
+        "GET" => $this->_GET,
+        "FILES" => $this->_FILES
         ];
     }
     
@@ -363,17 +375,17 @@ class Machine
      * @param array $matches an array of parmeter matches.
      *
      * @return boolean
-     */	
-	private function _checkMatches($matches) 
-	{
-		foreach ($matches as $m) {
-			if (strpos($m, '/') !== false) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
+     */    
+    private function _checkMatches($matches) 
+    {
+        foreach ($matches as $m) {
+            if (strpos($m, '/') !== false) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     /**
      * Process the template file and mixes it with data.
      *

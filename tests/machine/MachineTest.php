@@ -311,4 +311,18 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$response = $machine->run(true);
 		$this->assertEquals(303, $response["code"]);
 	}
+	
+	public function testActionApi()
+	{
+		$req = $this->_request("POST", "/api/tables/");
+		$machine = new \Machine\Machine($req);
+		$machine->addAction("/api/tables/", "POST", function($machine) {
+			$machine->setResponseCode(200);
+			$body = json_encode(["table1", "table2"]);
+			$machine->setResponseBody($body);
+		});
+		$response = $machine->run(true);
+		$this->assertEquals(200, $response["code"]);
+		$this->assertEquals('["table1","table2"]', $response["body"]);
+	}
 }
