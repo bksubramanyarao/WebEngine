@@ -341,7 +341,7 @@ class Machine
      */
     private function _matchRoute($path, $method)
     {
-		$foundroutes = [];
+        $foundroutes = [];
         foreach ($this->_routes as $routename => $routearr) {
             // $routename is for example "/route/{parameter}/"
             // here gets transformed to a regexp: "/route/(.*?)/"
@@ -357,10 +357,10 @@ class Machine
             array_shift($matches);
             if ($result == 1 && $this->_checkMatches($matches)) {
                 if (isset($this->_routes[$routename][$method])) {
-					$foundroutes[] = [
-						"routename" => $routename,
-						"wildcards" => count($matches), 
-						"callback" => $this->_routes[$routename][$method],
+                    $foundroutes[] = [
+                    "routename" => $routename,
+                    "wildcards" => count($matches), 
+                    "callback" => $this->_routes[$routename][$method],
                         "params" => array_merge(
                             // the Machine object is passed as first param
                             [$this], 
@@ -371,13 +371,15 @@ class Machine
             }
         }
 
-		// Multiple routes may be found. Sort by the less number of wildcards.
-		if (count($foundroutes) > 0) {
-			usort($foundroutes, function($a, $b) {
-				return $a["wildcards"] < $b["wildcards"] ? -1 : 1;
-			});
-			return $foundroutes[0];
-		}
+        // Multiple routes may be found. Sort by the less number of wildcards.
+        if (count($foundroutes) > 0) {
+            usort(
+                $foundroutes, function ($a, $b) {
+                    return $a["wildcards"] < $b["wildcards"] ? -1 : 1;
+                }
+            );
+            return $foundroutes[0];
+        }
     }
   
     /**
