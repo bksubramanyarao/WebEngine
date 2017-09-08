@@ -129,7 +129,7 @@ class Machine
      */    
     public function addPlugin($name) 
     {
-        $plugin_path = $this->_plugins_path . $name . ".php"; 
+        $plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
         if (file_exists($plugin_path)) {
             $className = "\\Plugin\\" . $name;
             if (!class_exists($className)) {
