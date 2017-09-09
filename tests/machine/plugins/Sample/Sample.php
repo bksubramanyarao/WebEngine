@@ -12,6 +12,7 @@ class Sample {
 	public function __construct($machine)
 	{
 		$this->_machine = $machine;
+		$this->_prefixDir = "";
 	}
 	
 	public function addHook($hookname, $func) {
@@ -32,5 +33,17 @@ class Sample {
 		
 		return "Sample plugin function called with params "
 			. implode(", ", $params);
+	}
+	
+	public function setRoutes($prefixdir)
+	{
+		$this->_machine->addPage($prefixdir . "/", function() {
+			return [
+				"template" => __DIR__ . "/template/test.php",
+				"data" => [
+					"content" => "Home page"
+				]
+			];
+		});
 	}
 }

@@ -341,4 +341,14 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$response = $machine->run(true);
 		$this->assertEquals("fixed", $response["body"]);
 	}
+	
+	public function testPluginRoutes()
+	{
+		$req = $this->_request("GET", "/plug/");
+		$machine = new \Machine\Machine($req);
+		$sample = $machine->addPlugin("Sample");
+		$sample->setRoutes("/plug");
+		$response = $machine->run(true);
+		$this->assertEquals("TEST<span>Home page</span>", $response["body"]);
+	}
 }

@@ -411,9 +411,13 @@ class Machine
     {
         $output = "";
         
-        $template_file_name = $this->_templates_path 
-        . $this->_template_name . "/" . $tpl;
-        if (file_exists($template_file_name)) {
+		if (file_exists($tpl)) {
+			$template_file_name = $tpl;
+		} else {
+			$template_file_name = $this->_templates_path . $this->_template_name . "/" . $tpl;
+        }
+		
+		if (file_exists($template_file_name)) {
             // plugins are available under their name
             //	this lets to write in templates
             //		$Auth->logged_user_id
