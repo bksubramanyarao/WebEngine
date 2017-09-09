@@ -1,5 +1,6 @@
 <?php
-namespace Plugin;
+namespace Machine\Plugin;
+
 class Email
 {
     

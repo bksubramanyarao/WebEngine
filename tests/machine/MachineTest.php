@@ -183,7 +183,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		
 		$machine = new \Machine\Machine($req);
 		$machine->addPlugin("Sample");
-		$this->assertEquals("Plugin\Sample", get_class($machine->plugin("Sample")));
+		$this->assertEquals("Machine\Plugin\Sample", get_class($machine->plugin("Sample")));
 	}
 	
 	public function testAddNonExistentPlugin() 

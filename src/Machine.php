@@ -131,7 +131,7 @@ class Machine
     {
         $plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
         if (file_exists($plugin_path)) {
-            $className = "\\Plugin\\" . $name;
+            $className = "\\Machine\\Plugin\\" . $name;
             if (!class_exists($className)) {
                 include $plugin_path;
             }

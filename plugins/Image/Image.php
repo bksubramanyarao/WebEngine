@@ -12,7 +12,7 @@
  *            (Apache License 2.0)
  * @link      https://github.com/paooolino/Machine
  */
-namespace Plugin;
+namespace Machine\Plugin;
 
 use Intervention\Image\ImageManager;
 
