@@ -195,6 +195,17 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("Machine\Plugin\Sample", get_class($machine->plugin("Sample")));
 	}
 	
+	public function testAddThirdpartyPlugin() 
+	{
+		include("Thirdparty.php");
+		
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPlugin("Thirdparty");
+		$this->assertEquals("Machine\Plugin\Thirdparty", get_class($machine->plugin("Thirdparty")));
+	}
+	
 	public function testAddNonExistentPlugin() 
 	{
 		$req = $this->_request("GET", "/");

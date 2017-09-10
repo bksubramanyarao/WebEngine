@@ -127,19 +127,31 @@ class Machine
      *
      * @return Plugin The plugin itself
      */    
-    public function addPlugin($name) 
+    public function addPlugin($name)
     {
-        // look for project-defined plugins
-        $plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
-        if (file_exists($plugin_path)) {
-            return $this->_instantiatePlugin($name, $plugin_path);
-        }
-        
-        // look for default plugins
-        $plugin_path = __DIR__ . "/../plugins/" . $name . "/" . $name . ".php"; 
-        if (file_exists($plugin_path)) {
-            return $this->_instantiatePlugin($name, $plugin_path);
-        }
+		$className = "\\Machine\\Plugin\\" . $name;
+		
+		// look in the project plugins folder
+		if (!class_exists($className)) {
+			$project_plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
+			if (file_exists($project_plugin_path)) {
+				include $project_plugin_path;
+			}
+		}
+		
+		// look in the default Machine plugins folder
+		if (!class_exists($className)) {
+			$default_plugin_path = __DIR__ . "/../plugins/" . $name . "/" . $name . ".php"; 
+			if (file_exists($default_plugin_path)) {
+				include $default_plugin_path;
+			}
+		}
+			
+		// ready to instantiate
+		if (class_exists($className)) {
+			$this->_plugins[$name] = new $className($this);
+			return $this->_plugins[$name];
+		}
     }
     
     /**
@@ -308,25 +320,6 @@ class Machine
         }
         
         return $this->_response;
-    }
-
-    /**
-     * Instantiate a plugin, given name and path.
-     *
-     * @param string $name        the plugin name.
-     * @param string $plugin_path the path of the main plugin php file.
-     *
-     * @return object plugin
-     */    
-    private function _instantiatePlugin($name, $plugin_path)
-    {
-        $className = "\\Machine\\Plugin\\" . $name;
-        if (!class_exists($className)) {
-            include $plugin_path;
-        }
-        // instantiate the plugin class passing the Machine object
-        $this->_plugins[$name] = new $className($this);
-        return $this->_plugins[$name];
     }
 
     /**
