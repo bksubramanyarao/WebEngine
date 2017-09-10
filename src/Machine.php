@@ -129,15 +129,16 @@ class Machine
      */    
     public function addPlugin($name) 
     {
+        // look for project-defined plugins
         $plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
         if (file_exists($plugin_path)) {
-            $className = "\\Machine\\Plugin\\" . $name;
-            if (!class_exists($className)) {
-                include $plugin_path;
-            }
-            // instantiate the plugin class passing the Machine object
-            $this->_plugins[$name] = new $className($this);
-            return $this->_plugins[$name];
+            return $this->_instantiatePlugin($name, $plugin_path);
+        }
+        
+        // look for default plugins
+        $plugin_path = __DIR__ . "/../plugins/" . $name . "/" . $name . ".php"; 
+        if (file_exists($plugin_path)) {
+            return $this->_instantiatePlugin($name, $plugin_path);
         }
     }
     
@@ -308,7 +309,26 @@ class Machine
         
         return $this->_response;
     }
-    
+
+    /**
+     * Instantiate a plugin, given name and path.
+     *
+     * @param string $name        the plugin name.
+     * @param string $plugin_path the path of the main plugin php file.
+     *
+     * @return object plugin
+     */    
+    private function _instantiatePlugin($name, $plugin_path)
+    {
+        $className = "\\Machine\\Plugin\\" . $name;
+        if (!class_exists($className)) {
+            include $plugin_path;
+        }
+        // instantiate the plugin class passing the Machine object
+        $this->_plugins[$name] = new $className($this);
+        return $this->_plugins[$name];
+    }
+
     /**
      * Add a generic route.
      *
@@ -411,13 +431,13 @@ class Machine
     {
         $output = "";
         
-		if (file_exists($tpl)) {
-			$template_file_name = $tpl;
-		} else {
-			$template_file_name = $this->_templates_path . $this->_template_name . "/" . $tpl;
+        if (file_exists($tpl)) {
+            $template_file_name = $tpl;
+        } else {
+            $template_file_name = $this->_templates_path . $this->_template_name . "/" . $tpl;
         }
-		
-		if (file_exists($template_file_name)) {
+        
+        if (file_exists($template_file_name)) {
             // plugins are available under their name
             //	this lets to write in templates
             //		$Auth->logged_user_id

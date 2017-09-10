@@ -177,7 +177,16 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 			. "for GET method (/duplicated/)", $result);
 	}
 	
-	public function testAddPlugin() 
+	public function testAddDefaultPlugin() 
+	{
+		$req = $this->_request("GET", "/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPlugin("Link");
+		$this->assertEquals("Machine\Plugin\Link", get_class($machine->plugin("Link")));
+	}
+	
+	public function testAddUserPlugin() 
 	{
 		$req = $this->_request("GET", "/");
 		
