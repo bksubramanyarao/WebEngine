@@ -270,7 +270,7 @@ class Machine
         $path = $this->_SERVER["REQUEST_URI"];
         $method = $this->_SERVER["REQUEST_METHOD"];
         $route_matchinfo = $this->_matchRoute($path, $method);    
-        
+
         if ($route_matchinfo) {
             // execute route callback.
             $result = call_user_func_array(
@@ -354,62 +354,39 @@ class Machine
      */
     private function _matchRoute($path, $method)
     {
-        $foundroutes = [];
-        foreach ($this->_routes as $routename => $routearr) {
-            // $routename is for example "/route/{parameter}/"
-            // here gets transformed to a regexp: "/route/(.*?)/"
-            $routename_exp = preg_replace("/\{(.*?)\}/", "(.*?)", $routename);
-            // escaping slashes: "\/route\/(.*?)\/"
-            $routename_exp = str_replace("/", "\/", $routename_exp);
-            // and adding start/end string tags: "/^\/route\/(.*?)\/$/"
-            $regexp = "/^" . $routename_exp . "$/";
-            
-            // time to find if the current route matches
-            $matches = [];
-            $result = preg_match($regexp, $path, $matches);
-            array_shift($matches);
-            if ($result == 1 && $this->_checkMatches($matches)) {
-                if (isset($this->_routes[$routename][$method])) {
-                    $foundroutes[] = [
-                    "routename" => $routename,
-                    "wildcards" => count($matches), 
-                    "callback" => $this->_routes[$routename][$method],
-                        "params" => array_merge(
-                            // the Machine object is passed as first param
-                            [$this], 
-                            isset($matches) ? $matches : []
-                        )
-                    ];
-                }
-            }
-        }
-
-        // Multiple routes may be found. Sort by the less number of wildcards.
-        if (count($foundroutes) > 0) {
-            usort(
-                $foundroutes, function ($a, $b) {
-                    return $a["wildcards"] < $b["wildcards"] ? -1 : 1;
-                }
-            );
-            return $foundroutes[0];
-        }
-    }
-  
-    /**
-     * Check if matches aren't containing the slash / character.
-     *
-     * @param array $matches an array of parmeter matches.
-     *
-     * @return boolean
-     */    
-    private function _checkMatches($matches) 
-    {
-        foreach ($matches as $m) {
-            if (strpos($m, '/') !== false) {
-                return false;
-            }
-        }
-        return true;
+		$dispatcher = \FastRoute\simpleDispatcher(function(\FastRoute\RouteCollector $r) use ($method) {
+			foreach ($this->_routes as $routename => $routearr) {
+				if (isset($routearr[$method])) {
+					$r->addRoute($method, $routename, $routearr[$method]);
+				}
+			}
+		});
+		
+		$routeInfo = $dispatcher->dispatch($method, $path);
+		switch ($routeInfo[0]) {
+			case \FastRoute\Dispatcher::NOT_FOUND:
+				// ... 404 Not Found
+				break;
+			case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+				$allowedMethods = $routeInfo[1];
+				// ... 405 Method Not Allowed
+				break;
+			case \FastRoute\Dispatcher::FOUND:
+				$handler = $routeInfo[1];
+				$vars = $routeInfo[2];
+				return [
+					"routename" => $path,
+					"wildcards" => isset($vars) ? count($vars) : 0,
+					"callback" => $handler,
+					"params" => array_merge(
+						// the Machine object is passed as first param
+						[$this], 
+						isset($vars) ? $vars : []
+					)
+				];
+				// ... call $handler with $vars
+				break;
+		}
     }
     
     /**

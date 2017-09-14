@@ -350,13 +350,14 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("POST", "/api2/tables/");
 		$machine = new \Machine\Machine($req);
-		$machine->addAction("/{tablename}/{id}/", "POST", function($machine) {
-			$machine->setResponseCode(200);
-			$machine->setResponseBody("wildcards");
-		});
+		// definition order is important! Before, the most static.
 		$machine->addAction("/api2/tables/", "POST", function($machine) {
 			$machine->setResponseCode(200);
 			$machine->setResponseBody("fixed");
+		});
+		$machine->addAction("/{tablename}/{id}/", "POST", function($machine) {
+			$machine->setResponseCode(200);
+			$machine->setResponseBody("wildcards");
 		});
 		$response = $machine->run(true);
 		$this->assertEquals("fixed", $response["body"]);
