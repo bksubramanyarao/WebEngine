@@ -372,4 +372,17 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		$response = $machine->run(true);
 		$this->assertEquals("TEST<span>Home page</span>", $response["body"]);
 	}
+	
+	public function testServe()
+	{
+		$req = $this->_request("GET", "/assets/js/lib1/lib1.js");
+		$machine = new \Machine\Machine($req);
+		$machine->addAction("/assets/{filename:.+}", "GET", function($machine, $filename) {
+			$serverpath = __DIR__ . "/plugins/Sample/template/" . $filename;
+			$machine->serve($serverpath);
+		});
+		$response = $machine->run(true);
+		$this->assertEquals(200, $response["code"]);
+		$this->assertEquals("console.log('lib1.js');", $response["body"]);
+	}
 }

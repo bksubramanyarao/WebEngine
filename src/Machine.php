@@ -44,6 +44,21 @@ class Machine
     
     private $_response;
     
+    private $_allowedCTypes = [
+    "css" => "text/css",
+    "js" => "application/javascript",
+    "json" => "application/json",
+    "jpg" => "image/jpeg",
+    "jpeg" => "image/jpeg",
+    "gif" => "image/gif",
+    "mid" => "audio/midi",
+    "midi" => "audio/midi",
+    "png" => "image/png",
+    "svg" => "image/svg+xml",
+    "pdf" => "application/pdf",
+    "mp4" => "video/mp4"
+    ];
+    
     /**
      * Create new machine.
      *
@@ -129,29 +144,29 @@ class Machine
      */    
     public function addPlugin($name)
     {
-		$className = "\\Machine\\Plugin\\" . $name;
-		
-		// look in the project plugins folder
-		if (!class_exists($className)) {
-			$project_plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
-			if (file_exists($project_plugin_path)) {
-				include $project_plugin_path;
-			}
-		}
-		
-		// look in the default Machine plugins folder
-		if (!class_exists($className)) {
-			$default_plugin_path = __DIR__ . "/../plugins/" . $name . "/" . $name . ".php"; 
-			if (file_exists($default_plugin_path)) {
-				include $default_plugin_path;
-			}
-		}
-			
-		// ready to instantiate
-		if (class_exists($className)) {
-			$this->_plugins[$name] = new $className($this);
-			return $this->_plugins[$name];
-		}
+        $className = "\\Machine\\Plugin\\" . $name;
+        
+        // look in the project plugins folder
+        if (!class_exists($className)) {
+            $project_plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
+            if (file_exists($project_plugin_path)) {
+                include $project_plugin_path;
+            }
+        }
+        
+        // look in the default Machine plugins folder
+        if (!class_exists($className)) {
+            $default_plugin_path = __DIR__ . "/../plugins/" . $name . "/" . $name . ".php"; 
+            if (file_exists($default_plugin_path)) {
+                include $default_plugin_path;
+            }
+        }
+            
+        // ready to instantiate
+        if (class_exists($className)) {
+            $this->_plugins[$name] = new $className($this);
+            return $this->_plugins[$name];
+        }
     }
     
     /**
@@ -323,6 +338,28 @@ class Machine
     }
 
     /**
+     * Serve a static asset.
+     *
+     * @param string $serverpath The absolute server file path.
+     *
+     * @return void
+     */
+    public function serve($serverpath)
+    {
+        $this->_response["code"] = 404;
+        if (file_exists($serverpath)) {
+            $path_parts = pathinfo($serverpath);
+            $ext = $path_parts["extension"];
+            if (isset($this->_allowedCTypes[$ext])) {
+                $contentType = $this->_allowedCTypes[$ext];
+                $this->_response["code"] = 200;
+                $this->_response["headers"][] = "Content-type: " . $contentType;
+                $this->_response["body"] = file_get_contents($serverpath);
+            }
+        }
+    }
+    
+    /**
      * Add a generic route.
      *
      * @param string   $name   the route name.
@@ -354,39 +391,41 @@ class Machine
      */
     private function _matchRoute($path, $method)
     {
-		$dispatcher = \FastRoute\simpleDispatcher(function(\FastRoute\RouteCollector $r) use ($method) {
-			foreach ($this->_routes as $routename => $routearr) {
-				if (isset($routearr[$method])) {
-					$r->addRoute($method, $routename, $routearr[$method]);
-				}
-			}
-		});
-		
-		$routeInfo = $dispatcher->dispatch($method, $path);
-		switch ($routeInfo[0]) {
-			case \FastRoute\Dispatcher::NOT_FOUND:
-				// ... 404 Not Found
-				break;
-			case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-				$allowedMethods = $routeInfo[1];
-				// ... 405 Method Not Allowed
-				break;
-			case \FastRoute\Dispatcher::FOUND:
-				$handler = $routeInfo[1];
-				$vars = $routeInfo[2];
-				return [
-					"routename" => $path,
-					"wildcards" => isset($vars) ? count($vars) : 0,
-					"callback" => $handler,
-					"params" => array_merge(
-						// the Machine object is passed as first param
-						[$this], 
-						isset($vars) ? $vars : []
-					)
-				];
-				// ... call $handler with $vars
-				break;
-		}
+        $dispatcher = \FastRoute\simpleDispatcher(
+            function (\FastRoute\RouteCollector $r) use ($method) {
+                foreach ($this->_routes as $routename => $routearr) {
+                    if (isset($routearr[$method])) {
+                        $r->addRoute($method, $routename, $routearr[$method]);
+                    }
+                }
+            }
+        );
+        
+        $routeInfo = $dispatcher->dispatch($method, $path);
+        switch ($routeInfo[0]) {
+        case \FastRoute\Dispatcher::NOT_FOUND:
+            // ... 404 Not Found
+            break;
+        case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+            $allowedMethods = $routeInfo[1];
+            // ... 405 Method Not Allowed
+            break;
+        case \FastRoute\Dispatcher::FOUND:
+            $handler = $routeInfo[1];
+            $vars = $routeInfo[2];
+            return [
+           "routename" => $path,
+           "wildcards" => isset($vars) ? count($vars) : 0,
+           "callback" => $handler,
+           "params" => array_merge(
+               // the Machine object is passed as first param
+               [$this], 
+               isset($vars) ? $vars : []
+           )
+            ];
+          // ... call $handler with $vars
+          break;
+        }
     }
     
     /**
