@@ -158,6 +158,19 @@ class Database
         return R::find($table, " " . $sqlCondition . " ", $boundData);
     }
 
+    /**
+     * Find distinct values for a field
+     *
+     * @param string $table        The table name.
+     * @param string $field        The field name.
+     *
+     * @return array An array of records matching the conditions
+     */	
+	public function getDistinctValues($table, $field)
+	{
+		return R::getAll("SELECT DISTINCT $field FROM $table ORDER BY $field");
+	}
+
     // ========================================================================
     //	Update
     // ========================================================================	
