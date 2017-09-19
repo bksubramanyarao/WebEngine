@@ -168,7 +168,13 @@ class Database
      */	
 	public function getDistinctValues($table, $field)
 	{
-		return R::getAll("SELECT DISTINCT $field FROM $table ORDER BY $field");
+		$items = R::getAll("SELECT DISTINCT $field FROM $table ORDER BY $field");
+		
+		$arr = [];
+		foreach ($items as $item) {
+			$arr[] = $item[$field];
+		}
+		return $arr;
 	}
 
     // ========================================================================
