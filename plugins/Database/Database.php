@@ -176,6 +176,11 @@ class Database
 		}
 		return $arr;
 	}
+	
+	public function getAll($query, $data = [])
+	{
+		return R::getAll($query, $data);
+	}
 
     // ========================================================================
     //	Update
