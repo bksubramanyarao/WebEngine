@@ -318,7 +318,7 @@ class Machine
         
         if (!$silent) {
             foreach ($this->_response["cookies"] as $cookieparams) {
-                call_user_func(setcookie, $cookieparams);
+                call_user_func_array("setcookie", $cookieparams);
             }
             
             foreach ($this->_response["headers"] as $header) {
