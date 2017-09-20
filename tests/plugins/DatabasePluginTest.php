@@ -65,6 +65,14 @@ class DatabasePluginTest extends \PHPUnit_Framework_TestCase
 		$db->update($jane);
 		$actived = $db->find("tabletest", "active = 1");
 		$this->assertEquals(2, count($actived));
+		
+		$names = $db->getDistinctValues("tabletest", "name");
+		$surnames = $db->getDistinctValues("tabletest", "surname");
+		$ages = $db->getDistinctValues("tabletest", "age");
+		$this->assertEquals(["Jane", "John"], $names);
+		$this->assertEquals(["Doe"], $surnames);
+		$this->assertEquals([21, 39], $ages);
+		
 		$db->close();
 	}
 }
