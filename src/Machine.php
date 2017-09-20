@@ -275,6 +275,19 @@ class Machine
         ];
     }
     
+	public function back()
+	{
+		$r = $this->getRequest();
+		if (isset($r["SERVER"]["HTTP_REFERER"])) {
+			$referrer = $r["SERVER"]["HTTP_REFERER"];
+			if ($referrer) {
+				$this->redirect($referrer);
+			}
+		} else {
+			$this->redirect("/");
+		}
+	}
+	
     /**
      * Run the application.
      *
