@@ -28,27 +28,31 @@ namespace Machine\Plugin;
  */
 class Form
 {
+  
   private $machine;
   private $forms;
+  private $onceForms;
   private $formrow_template = '
-    <div class="formRow">
+    <div class="formRow type{{CLASS_TYPE}}">
       <div class="formLabel">
         {{LABEL}}
       </div>
       <div class="formField">
         {{FIELD}}
       </div>
+      <div class="closing"></div>
     </div>
   ';
   private $form_template = '
     <div class="formContainer">
       <form method="post" action="{{FORMACTION}}">
         {{FORMROWS}}
-        <button type="submit">submit</button>
+        <button type="submit">{{SUBMITLABEL}}</button>
       </form>
     </div>
   ';
-    
+  private $_values;
+  
   /**
    * Form plugin constructor.
    *
@@ -59,8 +63,9 @@ class Form
   function __construct($machine) 
   {
     $this->machine = $machine;
+    $this->_values = [];
   }
-    
+  
   /**
    * Add a form, given a name and some options.
    *
@@ -68,6 +73,7 @@ class Form
    * <code>
    * $opts = [
    *     "action" => "/register/",    // the slug for the action.
+   *     "submitlabel" => "Send",     // the label for the submit button
    *     "fields" => [                // an array of field definitions.
    *         "email",                    // the name for a text field. 
    *         ["password", "password"] // the name and type of a field.
@@ -84,7 +90,10 @@ class Form
   {
     $this->forms[$name] = $opts;
   }
-    
+  
+  /**
+   *  Add fields to a form just once
+   */
   public function addFieldsOnce($name, $fields)
   {
     $original_form_fields = $this->forms[$name]["fields"];
@@ -94,6 +103,14 @@ class Form
     );
     $this->onceForms[$name] = $this->forms[$name];
     $this->onceForms[$name]["fields"] = $new_fields;
+  }
+  
+  /**
+   *  Set the values for a form.
+   */
+  public function setValues($formname, $values)
+  {
+    $this->_values[$formname] = $values;
   }
   
   /**
@@ -108,15 +125,23 @@ class Form
     $formName = $params[0];
     
     $opts = isset($this->onceForms[$formName]) 
-      ? $this->onceForms[$formName]
-      : $this->forms[$formName];
+              ? $this->onceForms[$formName]
+              : $this->forms[$formName];
 
     $html_rows = "";
     foreach ($opts["fields"] as $formField) {
+      $value = "";
+      if (isset($formField[2]) && isset($formField[2]["name"])) {
+        $fieldname = $formField[2]["name"];
+        if (isset($this->_values[$formName][$fieldname])) {
+          $value = $this->_values[$formName][$fieldname];
+        }
+      }
       $html_rows .= $this->machine->populateTemplate(
         $this->formrow_template, [
           "LABEL" => $this->getFormLabel($formField),
-          "FIELD" => $this->getFormField($formField)
+          "FIELD" => $this->getFormField($formField, $value),
+          "CLASS_TYPE" => $formField[1]
         ]
       );
     }
@@ -124,7 +149,8 @@ class Form
     $html = $this->machine->populateTemplate(
       $this->form_template, [
         "FORMACTION" => $opts["action"],
-        "FORMROWS" => $html_rows
+        "FORMROWS" => $html_rows,
+        "SUBMITLABEL" => isset($opts["submitlabel"]) ? $opts["submitlabel"] : "submit"
       ]
     );
     
@@ -132,7 +158,7 @@ class Form
 
     return $html;
   }
-    
+  
   private function getFormLabel($formField) 
   {
     $type = gettype($formField);
@@ -145,29 +171,72 @@ class Form
         case "hidden":
           return "";
           break;
+        case "checkbox":
+          return '<label for="' . $formField[2]["name"] . '">' . $formField[0] . '</label>';
+          break;
+        case "content":
+          return $formField[0];
         default:
           return $formField[0];
       }
     }        
   }
+  
+  private function _getHtmlForOptions($opts) {
+    $html = '';
     
-  private function getFormField($formField) 
-  {
-    $type = gettype($formField);
-    if ($type  == "string") {
-      return '<input type="text" name="' . $formField . '" />';
-    }
-    if ($type == "array") {
-      $field_type = $formField[1];
-      switch ($field_type) {
-        case "password":
-          return '<input type="password" name="' . $formField[0] . '" />';
-          break;
-        case "hidden":
-          $v = htmlentities($formField[2]);
-          return '<input type="hidden" name="' . $formField[0] . '" value="'. $v .'" />';
-          break;
+    foreach ($opts as $opt) {
+      if (gettype($opt) == "string") {
+        $html .= '<option>' . $opt . '</option>';
       }
     }
+    
+    return $html;
+  }
+  
+  private function getFormField($formField, $value) 
+  {
+    $field_type = $formField[1];
+    switch ($field_type) {
+      case "text":
+        $attributes = $this->_buildFieldAttributesString($formField[2]);
+        return '<input value="'. htmlentities($value) .'" type="text" ' . $attributes . ' />';
+        break;
+      case "content":
+        return '';
+      case "email":
+        $attributes = $this->_buildFieldAttributesString($formField[2]);
+        return '<input value="'. htmlentities($value) .'" type="email" ' . $attributes . ' />';
+        break;
+      case "select":
+        $attributes = $this->_buildFieldAttributesString($formField[2]);
+        $opts = $this->_getHtmlForOptions($formField[2]["options"]);
+        return '<select value="'. htmlentities($value) .'" ' . $attributes . '>' . $opts . '</select>';
+        break;
+      case "password":
+        $attributes = $this->_buildFieldAttributesString($formField[2]);
+        return '<input type="password" ' . $attributes . ' />';
+        break;
+      case "checkbox":
+        $attributes = $this->_buildFieldAttributesString($formField[2]);
+        return '<input id="' . $formField[2]["name"] . '" type="checkbox" ' . $attributes . ' />';
+        break;
+      case "hidden":
+        $v = htmlentities($formField[2]);
+        return '<input type="hidden" value="'. $v .'" name="' . $formField[0] . '" />';
+        break;
+    }
+  }
+  
+  private function _buildFieldAttributesString($arr_attributes)
+  {
+    $allowed_attributes = ["name", "disabled"];
+    $atts = [];
+    foreach ($arr_attributes as $k => $v) {
+      if (in_array($k, $allowed_attributes)) {
+        $atts[] = $k . '="' . htmlentities($v) . '"';
+      }
+    }
+    return implode(" ", $atts);
   }
 }
