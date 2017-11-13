@@ -85,6 +85,7 @@ class Machine
     $this->_routes = [];
     $this->_plugins = [];
     $this->_template_name = "default";
+    $this->basepath = rtrim(dirname($this->_SERVER["SCRIPT_NAME"]), DIRECTORY_SEPARATOR);
     $this->_response = [
       "headers" => [],
       "code" => "",
@@ -253,7 +254,7 @@ class Machine
    */
   public function templatePath()
   {
-    return "//" . $this->_SERVER["HTTP_HOST"] . "/" . $this->_templates_path 
+    return "//" . $this->_SERVER["HTTP_HOST"] . $this->basepath . "/" . $this->_templates_path 
       . $this->_template_name . "/";
   }
     
@@ -300,6 +301,14 @@ class Machine
   }
   
   /**
+   *  Shortcut for server globals
+   */
+  public function SERVER($k)
+  {
+    return isset($this->_SERVER[$k]) ? $this->_SERVER[$k] : "";
+  }
+  
+  /**
    *  redirect to the page referrer
    */   
   public function back()
@@ -317,7 +326,14 @@ class Machine
   
   public function getCurrentPath()
   {
+    // get the complete path, including possible subfolders.
     $path = $this->_SERVER["REQUEST_URI"];
+    
+    // strip the subfolder from path.
+    if (substr($path, 0, strlen($this->basepath)) == $this->basepath) {
+      $path = substr($path, strlen($this->basepath));
+    } 
+    
     // strip query string and decode uri
     if (false !== $pos = strpos($path, '?')) {
       $path = substr($path, 0, $pos);
