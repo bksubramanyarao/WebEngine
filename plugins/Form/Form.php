@@ -202,6 +202,10 @@ class Form
         $attributes = $this->_buildFieldAttributesString($formField[2]);
         return '<input value="'. htmlentities($value) .'" type="text" ' . $attributes . ' />';
         break;
+      case "image":
+        $attributes = $this->_buildFieldAttributesString($formField[2]);
+        return '<input data-value="' . htmlentities($value) . '" type="file" ' . $attributes . '>';
+        break;
       case "content":
         return '';
       case "email":
