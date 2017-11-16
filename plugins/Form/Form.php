@@ -45,7 +45,7 @@ class Form
   ';
   private $form_template = '
     <div class="formContainer">
-      <form method="post" action="{{FORMACTION}}">
+      <form method="post" action="{{FORMACTION}}" enctype="multipart/form-data">
         {{FORMROWS}}
         <button type="submit">{{SUBMITLABEL}}</button>
       </form>
