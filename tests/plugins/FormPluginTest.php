@@ -45,7 +45,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
 		});
     
     $response = $machine->run(true);
-    $expected_form = '
+    /*
     <div class="formContainer">
       <form method="post" action="/register/" enctype="multipart/form-data">
         <div class="formRow typetext">
@@ -69,7 +69,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
         <button type="submit">Invia</button>
       </form>
     </div>    
-    ';
+    */
     $this->assertContains('<form method="post" action="/register/" enctype="multipart/form-data">', $response["body"]);
     $this->assertContains('<button type="submit">Invia</button>', $response["body"]);
     
