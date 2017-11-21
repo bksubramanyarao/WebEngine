@@ -12,7 +12,8 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
 				"REQUEST_URI" => $path,
-				"HTTP_HOST" => "localhost:8000"
+				"HTTP_HOST" => "localhost:8000",
+        "SCRIPT_NAME" => "/index.php"
 			],
 			"templates_path" => "tests/machine/templates/",
 			"plugins_path" => "plugins/"

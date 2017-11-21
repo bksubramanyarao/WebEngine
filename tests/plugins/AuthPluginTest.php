@@ -12,6 +12,7 @@ class AuthPluginTest extends \PHPUnit_Framework_TestCase
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
 				"REQUEST_URI" => $path,
+        "SCRIPT_NAME" => "/index.php",
 				"HTTP_HOST" => "localhost:8000",
 				"REMOTE_ADDR" => "127.0.0.1"
 			],

@@ -71,14 +71,14 @@ class Form
    *
    * An example
    * <code>
-   * $opts = [
-   *     "action" => "/register/",    // the slug for the action.
-   *     "submitlabel" => "Send",     // the label for the submit button
-   *     "fields" => [                // an array of field definitions.
-   *         "email",                    // the name for a text field. 
-   *         ["password", "password"] // the name and type of a field.
-   *     ]
-   * ]
+	 *	$Form->addForm("myForm", [
+   *    "action" => "/register/",
+   *    "submitlabel" => "Invia",
+   *    "fields" => [
+   *      ["email", "text", ["name" => "email"]],
+   *      ["password", "password", ["name" => "password"]]
+   *    ]
+   *  ]);
    * </code>
    *
    * @param string $name

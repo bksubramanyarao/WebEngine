@@ -12,7 +12,22 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
 				"REQUEST_URI" => $path,
-				"HTTP_HOST" => "localhost:8000"
+				"HTTP_HOST" => "localhost:8000",
+        "SCRIPT_NAME" => "/index.php"
+			],
+			"templates_path" => "tests/machine/templates/",
+			"plugins_path" => "tests/machine/plugins/"
+		];
+	}
+  
+	private function _requestInSubdir($method, $path)
+	{
+		return [
+			"SERVER" => [
+				"REQUEST_METHOD" => $method,
+				"REQUEST_URI" => $path,
+				"HTTP_HOST" => "localhost:8000",
+        "SCRIPT_NAME" => "/web/index.php"
 			],
 			"templates_path" => "tests/machine/templates/",
 			"plugins_path" => "tests/machine/plugins/"
@@ -34,6 +49,24 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		});
 		$response = $machine->run(true);
 		$this->assertEquals("<h1>Home page</h1>", $response["body"]);
+	}	
+  
+  public function testPageOkInSubdir()
+	{
+		$req = $this->_requestInSubdir("GET", "/web/");
+		
+		$machine = new \Machine\Machine($req);
+		$machine->addPage("/", function() {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "{{templatePath}}"
+				]
+			];
+		});
+		$response = $machine->run(true);
+		$this->assertEquals("<h1>//localhost:8000/web/tests/machine/templates/default/</h1>", $response["body"]);
+    $this->assertEquals("/", $machine->getCurrentPath());
 	}
 	
 	public function testSetTemplate()

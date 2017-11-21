@@ -78,14 +78,27 @@ class Machine
     $this->_POST = isset($opts["POST"]) ? $opts["POST"] : $_POST;
     $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
     $this->_FILES = isset($opts["FILES"]) ? $opts["FILES"] : $_FILES;
+    
+    // The base path. Used to expose the subpath in the visible links on page.
+    // If Machine is in the root: 
+    //  SCRIPT_NAME is: /index.php
+    //  resulting basepath is: empty string
+    // If Machine is in the /web subdirectory
+    //  SCRIPT_NAME is: /web/index.php
+    //  resulting basepath is: /web
+    $this->basepath = rtrim(dirname($this->_SERVER["SCRIPT_NAME"]), DIRECTORY_SEPARATOR);
+    
+    // templates and plugins path are specified relatively to the index.php 
+    // (Machine root) location. 
     $this->_templates_path = isset($opts["templates_path"]) 
         ? $opts["templates_path"] : "templates/";
     $this->_plugins_path = isset($opts["plugins_path"]) 
         ? $opts["plugins_path"] : "plugins/";
+    
     $this->_routes = [];
     $this->_plugins = [];
     $this->_template_name = "default";
-    $this->basepath = rtrim(dirname($this->_SERVER["SCRIPT_NAME"]), DIRECTORY_SEPARATOR);
+    
     $this->_response = [
       "headers" => [],
       "code" => "",
@@ -333,7 +346,7 @@ class Machine
     if (substr($path, 0, strlen($this->basepath)) == $this->basepath) {
       $path = substr($path, strlen($this->basepath));
     } 
-    
+
     // strip query string and decode uri
     if (false !== $pos = strpos($path, '?')) {
       $path = substr($path, 0, $pos);
