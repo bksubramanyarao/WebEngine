@@ -74,7 +74,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     $this->assertContains('<button type="submit">Invia</button>', $response["body"]);
     
     $this->assertContains('<div class="formRow typetext">', $response["body"]);
-    $this->assertContains('<input value="" type="text" name="email" />', $response["body"]);
+    $this->assertContains('<input type="text" value="" name="email" />', $response["body"]);
     
     $this->assertContains('<div class="formRow typepassword">', $response["body"]);
     $this->assertContains('<input type="password" name="password" />', $response["body"]);
