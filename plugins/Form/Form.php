@@ -58,7 +58,7 @@ class Form
     "email" => '<input type="email" value="{{VALUE}}" {{ATTRIBUTES}} />',   
     "select" => '<select value="{{VALUE}}" {{ATTRIBUTES}}>{{OPTS}}</select>',  
     "password" => '<input type="password" {{ATTRIBUTES}} />',  
-    "checkbox" => '<label><input id="{{LABEL}}" type="checkbox" {{ATTRIBUTES}} />{{LABEL}}</label>',     
+    "checkbox" => '<label><input id="{{NAME}}" type="checkbox" {{ATTRIBUTES}} />{{LABEL}}</label>',     
     "hidden" => '<input type="hidden" value="{{VALUE}}" {{ATTRIBUTES}} />'
   ];
   
@@ -183,7 +183,7 @@ class Form
         return "";
         break;
       case "checkbox":
-        return '<label for="' . $formField[2]["name"] . '">' . $formField[0] . '</label>';
+        return "";
         break;
       case "content":
         return $formField[0];
@@ -238,7 +238,8 @@ class Form
           $this->field_templates[$field_type],
           [
             "VALUE" => $value,
-            "LABEL" => $formField[2]["name"],
+            "NAME" => $formField[2]["name"],
+            "LABEL" => $formField[0],
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2])
           ]
         );
