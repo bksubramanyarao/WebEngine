@@ -102,6 +102,11 @@ class Form
     $this->forms[$name] = $opts;
   }
   
+  public function setFieldTemplate($fieldtype, $newtemplate)
+  {
+    $this->field_templates[$fieldtype] = $newtemplate;
+  }
+  
   /**
    *  Add fields to a form just once
    */

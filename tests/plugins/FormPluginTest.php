@@ -45,31 +45,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
 		});
     
     $response = $machine->run(true);
-    /*
-    <div class="formContainer">
-      <form method="post" action="/register/" enctype="multipart/form-data">
-        <div class="formRow typetext">
-          <div class="formLabel">
-            email
-          </div>
-          <div class="formField">
-            <input value="" type="text" name="email" />
-          </div>
-          <div class="closing"></div>
-        </div>
-        <div class="formRow typepassword">
-          <div class="formLabel">
-            password
-          </div>
-          <div class="formField">
-            <input type="password" name="password" />
-          </div>
-          <div class="closing"></div>
-        </div>
-        <button type="submit">Invia</button>
-      </form>
-    </div>    
-    */
+
     $this->assertContains('<form method="post" action="/register/" enctype="multipart/form-data">', $response["body"]);
     $this->assertContains('<button type="submit">Invia</button>', $response["body"]);
     
@@ -78,5 +54,64 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     
     $this->assertContains('<div class="formRow typepassword">', $response["body"]);
     $this->assertContains('<input type="password" name="password" />', $response["body"]);
+  }
+  
+  public function testSetValues()
+  {
+    $req = $this->_request("GET", "/");
+    $machine = new \Machine\Machine($req);
+    $machine->addPlugin("Form");	
+    
+		$machine->addPage("/", function($machine) {
+			$Form = $machine->plugin("Form");
+			$Form->addForm("myForm", [
+        "action" => "/register/",
+        "submitlabel" => "Invia",
+        "fields" => [
+          ["email", "text", ["name" => "email"]]
+        ]
+      ]);
+      $Form->setValues("myForm", [
+        "email" => "test@test.it",
+        "password" => "12345"
+      ]);
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "{{Form|Render|myForm}}"
+				]
+			];
+		});
+    
+    $response = $machine->run(true);
+    $this->assertContains('<input type="text" value="test@test.it" name="email" />', $response["body"]);
+  }
+  
+  public function testSetFieldTemplate()
+  {
+    $req = $this->_request("GET", "/");
+    $machine = new \Machine\Machine($req);
+    $machine->addPlugin("Form");	
+    
+		$machine->addPage("/", function($machine) {
+			$Form = $machine->plugin("Form");
+			$Form->addForm("myForm", [
+        "action" => "/register/",
+        "submitlabel" => "Invia",
+        "fields" => [
+          ["email", "text", ["name" => "email"]]
+        ]
+      ]);
+      $Form->setFieldTemplate("text", '<div class="myclass"><input {{ATTRIBUTES}} /></div>');
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "{{Form|Render|myForm}}"
+				]
+			];
+		});
+    
+    $response = $machine->run(true);
+    $this->assertContains('<div class="myclass"><input name="email" /></div>', $response["body"]);
   }
 }
