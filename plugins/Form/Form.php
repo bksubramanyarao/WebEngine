@@ -30,7 +30,7 @@ class Form
 {
   private $machine;
   private $forms;
-  private $onceForms;
+  
   private $formrow_template = '
     <div class="formRow type{{CLASS_TYPE}}">
       <div class="formLabel">
@@ -58,11 +58,14 @@ class Form
     "email" => '<input type="email" value="{{VALUE}}" {{ATTRIBUTES}} />',   
     "select" => '<select value="{{VALUE}}" {{ATTRIBUTES}}>{{OPTS}}</select>',  
     "password" => '<input type="password" {{ATTRIBUTES}} />',  
-    "checkbox" => '<label><input id="{{NAME}}" type="checkbox" {{ATTRIBUTES}} />{{LABEL}}</label>',     
-    "hidden" => '<input type="hidden" value="{{VALUE}}" {{ATTRIBUTES}} />'
+    "checkbox" => '<label><input id="{{UNIQUE_ID}}" type="checkbox" {{ATTRIBUTES}} />{{LABEL}}</label>',     
+    "hidden" => '<input type="hidden" value="{{VALUE}}" {{ATTRIBUTES}} />',
+    "radio" => '<label><input id="{{UNIQUE_ID}}" name="{{NAME}}" type="radio" {{ATTRIBUTES}}" checked="{{CHECKED}}"></label>'
   ];
   
   private $_values;
+  
+  private $_currentForm;
   
   /**
    * Form plugin constructor.
@@ -75,6 +78,7 @@ class Form
   {
     $this->machine = $machine;
     $this->_values = [];
+    $this->_currentForm = "";
   }
   
   /**
@@ -108,20 +112,6 @@ class Form
   }
   
   /**
-   *  Add fields to a form just once
-   */
-  public function addFieldsOnce($name, $fields)
-  {
-    $original_form_fields = $this->forms[$name]["fields"];
-    $new_fields = array_merge(
-      $original_form_fields,
-      $fields
-    );
-    $this->onceForms[$name] = $this->forms[$name];
-    $this->onceForms[$name]["fields"] = $new_fields;
-  }
-  
-  /**
    *  Set the values for a form.
    */
   public function setValues($formname, $values)
@@ -139,11 +129,10 @@ class Form
   public function Render($params) 
   {
     $formName = $params[0];
+    $this->_currentForm = $formName;
     
-    $opts = isset($this->onceForms[$formName]) 
-              ? $this->onceForms[$formName]
-              : $this->forms[$formName];
-
+    $opts = $this->forms[$formName];
+    
     $html_rows = "";
     foreach ($opts["fields"] as $formField) {
       $value = "";
@@ -170,9 +159,35 @@ class Form
       ]
     );
     
-    unset($this->onceForms[$formName]);
-
     return $html;
+  }
+  
+  private function _getHtmlForOptions($opts) {
+    $html = '';
+    
+    foreach ($opts as $opt) {
+      if (gettype($opt) == "string") {
+        $html .= '<option>' . $opt . '</option>';
+      }
+    }
+    
+    return $html;
+  }
+  
+  /**
+   *  Get an unique id for the field.
+   *  
+   *  This is used to assign an id="" attribute to the DOM input element, thus 
+   *  able to be referenced by a possible <label for="".
+   *  The id should be deterministic (not trandomly generated). It is build
+   *  joining the form name and the field name, plus the field "value" attribute
+   *  in case of radio buttons.
+   */
+  private function _getUniqueId($formField)
+  {
+    $id = $this->_currentForm . $formField[2]["name"];
+    $id .= isset($formField[2]["value"]) ? $formField[2]["value"] : "";
+    return $id;
   }
   
   private function getFormLabel($formField) 
@@ -188,20 +203,8 @@ class Form
       case "content":
         return $formField[0];
       default:
-        return $formField[0];
+        return '<label for="' . $this->_getUniqueId($formField) . '">' . $formField[0] . '</label>';
     } 
-  }
-  
-  private function _getHtmlForOptions($opts) {
-    $html = '';
-    
-    foreach ($opts as $opt) {
-      if (gettype($opt) == "string") {
-        $html .= '<option>' . $opt . '</option>';
-      }
-    }
-    
-    return $html;
   }
   
   private function getFormField($formField, $value) 
@@ -238,7 +241,18 @@ class Form
           $this->field_templates[$field_type],
           [
             "VALUE" => $value,
-            "NAME" => $formField[2]["name"],
+            "UNIQUE_ID" => $this->_getUniqueId($formField),
+            "LABEL" => $formField[0],
+            "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2])
+          ]
+        );
+        break;
+      case "radio":
+        return $this->machine->populateTemplate(
+          $this->field_templates[$field_type],
+          [
+            "VALUE" => $value,
+            "UNIQUE_ID" => $this->_getUniqueId($formField),
             "LABEL" => $formField[0],
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2])
           ]
