@@ -50,10 +50,10 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     $this->assertContains('<button type="submit">Invia</button>', $response["body"]);
     
     $this->assertContains('<div class="formRow typetext">', $response["body"]);
-    $this->assertContains('<input type="text" value="" name="email" />', $response["body"]);
+    $this->assertContains('<input id="myFormemail" type="text" value="" name="email" />', $response["body"]);
     
     $this->assertContains('<div class="formRow typepassword">', $response["body"]);
-    $this->assertContains('<input type="password" name="password" />', $response["body"]);
+    $this->assertContains('<input id="myFormpassword" type="password" name="password" />', $response["body"]);
   }
   
   public function testSetValues()
@@ -84,7 +84,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
 		});
     
     $response = $machine->run(true);
-    $this->assertContains('<input type="text" value="test@test.it" name="email" />', $response["body"]);
+    $this->assertContains('<input id="myFormemail" type="text" value="test@test.it" name="email" />', $response["body"]);
   }
   
   public function testSetFieldTemplate()

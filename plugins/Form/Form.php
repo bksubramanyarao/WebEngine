@@ -52,15 +52,17 @@ class Form
   ';
   
   private $field_templates = [
-    "text" => '<input type="text" value="{{VALUE}}" {{ATTRIBUTES}} />',
-    "image" => '<input type="file" data-value="{{VALUE}}" {{ATTRIBUTES}} />',
+    "text" => '<input id="{{UNIQUE_ID}}" type="text" value="{{VALUE}}" {{ATTRIBUTES}} />',
+    "image" => '<input id="{{UNIQUE_ID}}" type="file" data-value="{{VALUE}}" {{ATTRIBUTES}} />',
     "content" => '',
-    "email" => '<input type="email" value="{{VALUE}}" {{ATTRIBUTES}} />',   
-    "select" => '<select value="{{VALUE}}" {{ATTRIBUTES}}>{{OPTS}}</select>',  
-    "password" => '<input type="password" {{ATTRIBUTES}} />',  
+    "email" => '<input id="{{UNIQUE_ID}}" type="email" value="{{VALUE}}" {{ATTRIBUTES}} />',  
+    "select" => '<select id="{{UNIQUE_ID}}" value="{{VALUE}}" {{ATTRIBUTES}}>{{OPTS}}</select>',  
+    "password" => '<input id="{{UNIQUE_ID}}" type="password" {{ATTRIBUTES}} />',  
     "checkbox" => '<label><input id="{{UNIQUE_ID}}" type="checkbox" {{ATTRIBUTES}} />{{LABEL}}</label>',     
     "hidden" => '<input type="hidden" value="{{VALUE}}" {{ATTRIBUTES}} />',
-    "radio" => '<label><input id="{{UNIQUE_ID}}" name="{{NAME}}" type="radio" {{ATTRIBUTES}}" checked="{{CHECKED}}"></label>'
+    "textarea" => '<textarea id="{{UNIQUE_ID}}" {{ATTRIBUTES}}>{{VALUE}}</textarea>',
+    // for radio buttons, value is an attribute!
+    "radio" => '<label><input id="{{UNIQUE_ID}}" name="{{NAME}}" type="radio" {{ATTRIBUTES}}" checked="{{CHECKED}}"> {{LABEL}}</label>'
   ];
   
   private $_values;
@@ -197,7 +199,8 @@ class Form
       case "hidden":
         return "";
         break;
-      case "checkbox":
+      case "checkbox";
+      case "radio":
         return "";
         break;
       case "content":
@@ -215,11 +218,13 @@ class Form
       case "image";
       case "email";
       case "hidden";
+      case "textarea";
       case "password":
         return $this->machine->populateTemplate(
           $this->field_templates[$field_type],
           [
             "VALUE" => $value,
+            "UNIQUE_ID" => $this->_getUniqueId($formField),
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2])
           ]
         );
@@ -231,6 +236,7 @@ class Form
           $this->field_templates[$field_type],
           [
             "VALUE" => $value,
+            "UNIQUE_ID" => $this->_getUniqueId($formField),
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2]),
             "OPTS" =>  $this->_getHtmlForOptions($formField[2]["options"])
           ]
