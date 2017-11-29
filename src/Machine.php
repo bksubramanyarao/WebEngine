@@ -44,6 +44,8 @@ class Machine
   
   private $_response;
   
+  public $basepath;
+ 
   private $_allowedCTypes = [
   "css" => "text/css",
   "js" => "application/javascript",
@@ -78,27 +80,29 @@ class Machine
     $this->_POST = isset($opts["POST"]) ? $opts["POST"] : $_POST;
     $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
     $this->_FILES = isset($opts["FILES"]) ? $opts["FILES"] : $_FILES;
-    
-    // The base path. Used to expose the subpath in the visible links on page.
-    // If Machine is in the root: 
-    //  SCRIPT_NAME is: /index.php
-    //  resulting basepath is: empty string
-    // If Machine is in the /web subdirectory
-    //  SCRIPT_NAME is: /web/index.php
-    //  resulting basepath is: /web
-    $this->basepath = rtrim(dirname($this->_SERVER["SCRIPT_NAME"]), DIRECTORY_SEPARATOR);
-    
-    // templates and plugins path are specified relatively to the index.php 
-    // (Machine root) location. 
     $this->_templates_path = isset($opts["templates_path"]) 
         ? $opts["templates_path"] : "templates/";
     $this->_plugins_path = isset($opts["plugins_path"]) 
-        ? $opts["plugins_path"] : "plugins/";
-    
+        ? $opts["plugins_path"] : "plugins/";  
     $this->_routes = [];
     $this->_plugins = [];
     $this->_template_name = "default";
-    
+
+    // The base path. Used to expose the subpath in the visible links on page.
+    // If Machine is in the root: 
+    //  script_name is: /index.php
+    //  resulting basepath is: empty string
+    // If Machine is in the /web subdirectory
+    //  script_name is: /web/index.php
+    //  resulting basepath is: /web
+    // templates and plugins path are specified relatively to the index.php 
+    // (Machine root) location.    
+    // script_name is calculated as the difference between document_root and script_filename
+    //  to fix the fact that with builtin php server the SCRIPT_NAME variable equals the REQUEST_URI 
+    //  under some circustances (e.g. request uri pointing to an existing directory)
+    $script_name = "/" . ltrim(str_replace($this->_SERVER["DOCUMENT_ROOT"], "", $this->_SERVER["SCRIPT_FILENAME"]), "/\\");
+    $this->basepath = rtrim(dirname($script_name), DIRECTORY_SEPARATOR);
+  
     $this->_response = [
       "headers" => [],
       "code" => "",
@@ -363,7 +367,6 @@ class Machine
    */
   public function run($silent = false)
   {
-
     // fetch method and uri
     $method = $this->_SERVER["REQUEST_METHOD"];
     $path = $this->getCurrentPath();
@@ -486,6 +489,7 @@ class Machine
     );
     
     $routeInfo = $dispatcher->dispatch($method, $path);
+
     switch ($routeInfo[0]) {
       case \FastRoute\Dispatcher::NOT_FOUND:
         // ... 404 Not Found

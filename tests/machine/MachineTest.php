@@ -13,7 +13,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				"REQUEST_METHOD" => $method,
 				"REQUEST_URI" => $path,
 				"HTTP_HOST" => "localhost:8000",
-        "SCRIPT_NAME" => "/index.php"
+        "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
+        "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs/index.php"
 			],
 			"templates_path" => "tests/machine/templates/",
 			"plugins_path" => "tests/machine/plugins/"
@@ -25,9 +26,10 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		return [
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
-				"REQUEST_URI" => $path,
+				"REQUEST_URI" => "/",
 				"HTTP_HOST" => "localhost:8000",
-        "SCRIPT_NAME" => "/web/index.php"
+        "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
+        "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs\web/index.php"
 			],
 			"templates_path" => "tests/machine/templates/",
 			"plugins_path" => "tests/machine/plugins/"

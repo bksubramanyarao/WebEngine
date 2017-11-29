@@ -170,6 +170,8 @@ class Form
     foreach ($opts as $opt) {
       if (gettype($opt) == "string") {
         $html .= '<option>' . $opt . '</option>';
+      } else {
+        $html .= '<option value="' . $opt[0] . '">' . $opt[1] . '</option>';
       }
     }
     

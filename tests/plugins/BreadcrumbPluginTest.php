@@ -12,7 +12,8 @@ class BreadcrumbPluginTest extends \PHPUnit_Framework_TestCase
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
 				"REQUEST_URI" => $path,
-        "SCRIPT_NAME" => "/index.php",
+        "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
+        "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs/index.php",
 				"HTTP_HOST" => "localhost:8000"
 			],
 			"templates_path" => "tests/machine/templates/",
