@@ -121,6 +121,6 @@ class Image
     }
             
     $r = $this->_machine->getRequest();
-    return "//" . $r["SERVER"]["HTTP_HOST"] . "/" . $return_value;
+    return "//" . $r["SERVER"]["HTTP_HOST"] . $this->_machine->basepath . $return_value;
   }
 }
