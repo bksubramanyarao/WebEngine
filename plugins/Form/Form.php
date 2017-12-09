@@ -58,7 +58,7 @@ class Form
     "email" => '<input id="{{UNIQUE_ID}}" type="email" value="{{VALUE}}" {{ATTRIBUTES}} />',  
     "select" => '<select id="{{UNIQUE_ID}}" value="{{VALUE}}" {{ATTRIBUTES}}>{{OPTS}}</select>',  
     "password" => '<input id="{{UNIQUE_ID}}" type="password" {{ATTRIBUTES}} />',  
-    "checkbox" => '<label><input id="{{UNIQUE_ID}}" type="checkbox" {{ATTRIBUTES}} />{{LABEL}}</label>',     
+    "checkbox" => '<label><input id="{{UNIQUE_ID}}" type="checkbox" {{ATTRIBUTES}} /> {{LABEL}}</label>',     
     "hidden" => '<input type="hidden" value="{{VALUE}}" {{ATTRIBUTES}} />',
     "textarea" => '<textarea id="{{UNIQUE_ID}}" {{ATTRIBUTES}}>{{VALUE}}</textarea>',
     // for radio buttons, value is an attribute!
@@ -245,13 +245,16 @@ class Form
         );
         break;;
       case "checkbox":
+        $arr_attributes = $formField[2];
+        if ($value == 1 || $value == true || $value == "true") {
+          $arr_attributes["selected"] = "selected";
+        }
         return $this->machine->populateTemplate(
           $this->field_templates[$field_type],
           [
-            "VALUE" => $value,
             "UNIQUE_ID" => $this->_getUniqueId($formField),
             "LABEL" => $formField[0],
-            "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2])
+            "ATTRIBUTES" => $this->_buildFieldAttributesString($arr_attributes)
           ]
         );
         break;
@@ -271,7 +274,7 @@ class Form
   
   private function _buildFieldAttributesString($arr_attributes)
   {
-    $allowed_attributes = ["name", "disabled"];
+    $allowed_attributes = ["name", "disabled", "selected"];
     $atts = [];
     foreach ($arr_attributes as $k => $v) {
       if (in_array($k, $allowed_attributes)) {
