@@ -87,7 +87,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     
     $response = $machine->run(true);
     $this->assertContains('<input id="myFormemail" type="text" value="test@test.it" name="email" />', $response["body"]);
-    $this->assertContains('<input id="myFormactive" type="checkbox" name="active" selected="selected" />', $response["body"]);
+    $this->assertContains('<input id="myFormactive" type="checkbox" name="active" checked="checked" />', $response["body"]);
   }
   
   public function testSetFieldTemplate()

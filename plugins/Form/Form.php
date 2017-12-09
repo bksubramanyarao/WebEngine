@@ -247,7 +247,7 @@ class Form
       case "checkbox":
         $arr_attributes = $formField[2];
         if ($value == 1 || $value == true || $value == "true") {
-          $arr_attributes["selected"] = "selected";
+          $arr_attributes["checked"] = "checked";
         }
         return $this->machine->populateTemplate(
           $this->field_templates[$field_type],
@@ -274,7 +274,7 @@ class Form
   
   private function _buildFieldAttributesString($arr_attributes)
   {
-    $allowed_attributes = ["name", "disabled", "selected"];
+    $allowed_attributes = ["name", "disabled", "checked"];
     $atts = [];
     foreach ($arr_attributes as $k => $v) {
       if (in_array($k, $allowed_attributes)) {
