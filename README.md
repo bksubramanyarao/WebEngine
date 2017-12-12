@@ -1,6 +1,6 @@
 # Installing
 
-	composer require paooolino/machine:dev-master
+	composer require paooolino/webengine:dev-master
 
 # Usage
 
@@ -8,9 +8,9 @@
 
 	require("vendor/autoload.php");
 
-	$machine = new \Machine\Machine();
+	$engine = new \WebEngine\WebEngine();
 
-	$machine->addPage("/", function() {
+	$engine->addPage("/", function() {
 		return [
 			template: "page.php",
 			data: [
@@ -19,7 +19,7 @@
 		];
 	});
 	
-	$machine->run();
+	$engine->run();
 
 ## templates/default/page.php
 
@@ -38,7 +38,7 @@
 	
 **composer phpunit**
 
-	launch tests for the main Machine class and generate code coverage in coverage/machine
+	launch tests for the main WebEngine class and generate code coverage in coverage/engine
 
 **composer phpunit_plugins**
 
