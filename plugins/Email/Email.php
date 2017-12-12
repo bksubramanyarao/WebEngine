@@ -1,17 +1,17 @@
 <?php
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 class Email
 {
     
-    private $machine;
+    private $engine;
     
     // hooks
     private $after_mail_send = [];
     
-    function __construct($machine) 
+    function __construct($engine) 
     {
-        $this->machine = $machine;
+        $this->_engine = $engine;
     }
     
     public function addHook($hookname, $func) 
@@ -24,12 +24,12 @@ class Email
     public function send($opts) 
     {
         // get html
-        $html = $this->machine->get_output_template($opts["template"], $opts["data"]);
+        $html = $this->_engine->get_output_template($opts["template"], $opts["data"]);
         // send mail
         $result = mail($opts["to"], $opts["subject"], $html);
         
         // execute hooks
-        $opts = [$this->machine, date("Y-m-d H:i:s"), $opts["to"], $opts["subject"], $html, $result];
-        $this->machine->executeHook($this->after_mail_send, $opts);
+        $opts = [$this->_engine, date("Y-m-d H:i:s"), $opts["to"], $opts["subject"], $html, $result];
+        $this->_engine->executeHook($this->after_mail_send, $opts);
     }
 }

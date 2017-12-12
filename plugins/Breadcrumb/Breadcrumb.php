@@ -1,44 +1,44 @@
 <?php
 /**
- * The Machine
+ * WebEngine
  *
  * PHP version 5
  *
  * @category  Plugin
- * @package   Machine
+ * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
  * @copyright 2017 Paolo Savoldi
- * @license   https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
- * @link      https://github.com/paooolino/Machine
+ * @link      https://github.com/paooolino/WebEngine
  */
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 /**
  * Breadcrumb class
  *
- * A Breadcrumb menu management for the Machine
+ * A Breadcrumb menu management for the WebEngine
  *
  * @category Plugin
- * @package  Machine
+ * @package  WebEngine
  * @author   Paolo Savoldi <paooolino@gmail.com>
- * @license  https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license  https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *           (Apache License 2.0)
- * @link     https://github.com/paooolino/Machine
+ * @link     https://github.com/paooolino/WebEngine
  */
 class Breadcrumb
 {
     
-    private $_machine;
+    private $_engine;
     private $breadcrumb_template = '<span><a href="{{HREF}}">{{LABEL}}</a></span>';
     private $breadcrumb_separator = ' | ';
     
     private $breadcrumbs;
     private $label;
     
-    function __construct($machine) 
+    function __construct($engine) 
     {
-        $this->_machine = $machine;
+        $this->_engine = $engine;
         $this->breadcrumbs = [];
         $this->label = "";
     }
@@ -62,7 +62,7 @@ class Breadcrumb
         $html = [];
         
         foreach($this->breadcrumbs as $breadcrumb) {
-            $html[] = $this->_machine->populateTemplate(
+            $html[] = $this->_engine->populateTemplate(
                 $this->breadcrumb_template, [
                 "LABEL" => $breadcrumb["label"],
                 "HREF" => $breadcrumb["href"]

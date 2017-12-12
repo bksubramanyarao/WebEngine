@@ -1,10 +1,10 @@
 <?php
 
-namespace Machine\Tests;
+namespace WebEngine\Tests;
 
 require './vendor/autoload.php';
 
-class MachineTest extends \PHPUnit_Framework_TestCase
+class WebEngineTest extends \PHPUnit_Framework_TestCase
 {
 	private function _request($method, $path)
 	{
@@ -16,8 +16,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
         "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
         "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs/index.php"
 			],
-			"templates_path" => "tests/machine/templates/",
-			"plugins_path" => "tests/machine/plugins/"
+			"templates_path" => "tests/engine/templates/",
+			"plugins_path" => "tests/engine/plugins/"
 		];
 	}
   
@@ -31,8 +31,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
         "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
         "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs\web/index.php"
 			],
-			"templates_path" => "tests/machine/templates/",
-			"plugins_path" => "tests/machine/plugins/"
+			"templates_path" => "tests/engine/templates/",
+			"plugins_path" => "tests/engine/plugins/"
 		];
 	}
 	
@@ -40,8 +40,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -49,7 +49,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals("<h1>Home page</h1>", $response["body"]);
 	}	
   
@@ -57,8 +57,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_requestInSubdir("GET", "/web/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -66,18 +66,18 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
-		$this->assertEquals("<h1>//localhost:8000/web/tests/machine/templates/default/</h1>", $response["body"]);
-    $this->assertEquals("/", $machine->getCurrentPath());
+		$response = $engine->run(true);
+		$this->assertEquals("<h1>//localhost:8000/web/tests/engine/templates/default/</h1>", $response["body"]);
+    $this->assertEquals("/", $engine->getCurrentPath());
 	}
 	
 	public function testSetTemplate()
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->setTemplate("testtemplate");
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->setTemplate("testtemplate");
+		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -85,7 +85,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals("<h1>TEST TEMPLATE Home page</h1>", $response["body"]);
 	}
 	
@@ -93,21 +93,21 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/languages/php/5/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/languages/{language}/{version}/", function($machine, $language, $version) {
-			$this->assertEquals("Machine\Machine", get_class($machine));
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/languages/{language}/{version}/", function($engine, $language, $version) {
+			$this->assertEquals("WebEngine\WebEngine", get_class($engine));
 			$this->assertEquals("php", $language);
 			$this->assertEquals("5", $version);
 		});
-		$response = $machine->run(true);		
+		$response = $engine->run(true);		
 	}
 	
 	public function testMatchSimilarRoutes()
 	{
 		$req = $this->_request("GET", "/languages/php/6/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/languages/{language}/", function($machine) {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/languages/{language}/", function($engine) {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -115,7 +115,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$machine->addPage("/languages/{language}/{id}/", function($machine) {
+		$engine->addPage("/languages/{language}/{id}/", function($engine) {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -123,7 +123,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$result = $machine->run(true);
+		$result = $engine->run(true);
 		$this->assertEquals("<h1>right page</h1>", $result["body"]);
 	}
 	
@@ -131,12 +131,12 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("POST", "/actionpost/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addAction("/actionpost/", "POST", function($machine) {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addAction("/actionpost/", "POST", function($engine) {
 			// action code
-			$machine->redirect("/landing/");
+			$engine->redirect("/landing/");
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$headers = $response["headers"];
 		$this->assertEquals(1, count($response["headers"]));
 		$this->assertEquals("location: /landing/", $response["headers"][0]);
@@ -146,11 +146,11 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("POST", "/actionpost/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addAction("/actionpost/", "GET", function($machine) {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addAction("/actionpost/", "GET", function($engine) {
 			// action code
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals(404, $response["code"]);
 		$this->assertEquals("Not found", $response["reason"]);
 	}
@@ -159,8 +159,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/non-existent-page/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -168,7 +168,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals(404, $response["code"]);
 		$this->assertEquals("Not found", $response["reason"]);
 	}
@@ -177,8 +177,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/", function() {
 			return [
 				"template" => "non-existent-template.php",
 				"data" => [
@@ -186,26 +186,26 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals("Missing template file: "
-			. "tests/machine/templates/default/non-existent-template.php", $response["body"]);
+			. "tests/engine/templates/default/non-existent-template.php", $response["body"]);
 	}
 	
 	public function testRouteDuplicated()
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/", function() {
 			//
 		});
 		
-		$result = $machine->addPage("/duplicated/", function() {
+		$result = $engine->addPage("/duplicated/", function() {
 			//
 		});
 		$this->assertEquals("", $result);
 		
-		$result = $machine->addPage("/duplicated/", function() {
+		$result = $engine->addPage("/duplicated/", function() {
 			//
 		});
 		$this->assertEquals("Config Error: duplicated route. Route exists "
@@ -216,18 +216,18 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Link");
-		$this->assertEquals("Machine\Plugin\Link", get_class($machine->plugin("Link")));
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Link");
+		$this->assertEquals("WebEngine\Plugin\Link", get_class($engine->plugin("Link")));
 	}
 	
 	public function testAddUserPlugin() 
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Sample");
-		$this->assertEquals("Machine\Plugin\Sample", get_class($machine->plugin("Sample")));
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Sample");
+		$this->assertEquals("WebEngine\Plugin\Sample", get_class($engine->plugin("Sample")));
 	}
 	
 	public function testAddThirdpartyPlugin() 
@@ -236,17 +236,17 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 		
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Thirdparty");
-		$this->assertEquals("Machine\Plugin\Thirdparty", get_class($machine->plugin("Thirdparty")));
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Thirdparty");
+		$this->assertEquals("WebEngine\Plugin\Thirdparty", get_class($engine->plugin("Thirdparty")));
 	}
 	
 	public function testAddNonExistentPlugin() 
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$result = $machine->addPlugin("NonExistent");
+		$engine = new \WebEngine\WebEngine($req);
+		$result = $engine->addPlugin("NonExistent");
 		$this->assertEquals(NULL, $result);
 	}
 	
@@ -254,9 +254,9 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Sample");
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Sample");
+		$engine->addPage("/", function() {
 			return [
 				"template" => "testplug.php",
 				"data" => [
@@ -264,7 +264,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		
 		// {{Sample|plugfun|par1|par2|par3}}
 		$this->assertContains(
@@ -287,7 +287,7 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 			$response["body"]
 		);
 
-		$result = $machine->plugin("Sample")->Plugfun("test");
+		$result = $engine->plugin("Sample")->Plugfun("test");
 		$this->assertEquals("Sample plugin function called with params test", $result);
 	}
 	
@@ -295,8 +295,8 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPage("/", function() {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -304,16 +304,16 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
-		$this->assertEquals("<h1>//localhost:8000/tests/machine/templates/default/</h1>", $response["body"]);
+		$response = $engine->run(true);
+		$this->assertEquals("<h1>//localhost:8000/tests/engine/templates/default/</h1>", $response["body"]);
 	}
 	
 	public function testGetRequest()
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$r = $machine->getRequest();
+		$engine = new \WebEngine\WebEngine($req);
+		$r = $engine->getRequest();
 		
 		$this->assertEquals("GET", $r["SERVER"]["REQUEST_METHOD"]);
 		$this->assertEquals("/", $r["SERVER"]["REQUEST_URI"]);
@@ -323,26 +323,26 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	public function testSetCookie()
 	{
 		$req = $this->_request("POST", "/login/");
-		$machine = new \Machine\Machine($req);
-		$machine->addAction("/login/", "POST", function($machine) {
-			$machine->setCookie("loggedIn", 1);
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addAction("/login/", "POST", function($engine) {
+			$engine->setCookie("loggedIn", 1);
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals(1, $response["cookies"][0][1]);		
 	}
 	
 	public function testExecuteHook()
 	{
 		$req = $this->_request("POST", "/plugfun/");
-		$machine = new \Machine\Machine($req);
-		$sample = $machine->addPlugin("Sample");
-		$sample->addHook("after_plugfun", function($machine, $param1, $param2) {
-			$machine->redirect("/landing/" . $param1 . "/" . $param2 . "/");
+		$engine = new \WebEngine\WebEngine($req);
+		$sample = $engine->addPlugin("Sample");
+		$sample->addHook("after_plugfun", function($engine, $param1, $param2) {
+			$engine->redirect("/landing/" . $param1 . "/" . $param2 . "/");
 		});
-		$machine->addAction("/plugfun/", "POST", function($machine) {
-			$machine->plugin("Sample")->Plugfun(["john", "jane"]);
+		$engine->addAction("/plugfun/", "POST", function($engine) {
+			$engine->plugin("Sample")->Plugfun(["john", "jane"]);
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		
 		$this->assertEquals("location: /landing/john/jane/", $response["headers"][0]);
 	}
@@ -350,12 +350,12 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	public function testSendError()
 	{
 		$req = $this->_request("POST", "/myaction/");
-		$machine = new \Machine\Machine($req);
-		$machine->addAction("/myaction/", "POST", function($machine) {
-			$machine->setResponseCode(303);
-			$machine->redirect("/");
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addAction("/myaction/", "POST", function($engine) {
+			$engine->setResponseCode(303);
+			$engine->redirect("/");
 		});
-		$machine->addPage("/", function() {
+		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -363,20 +363,20 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals(303, $response["code"]);
 	}
 	
 	public function testActionApi()
 	{
 		$req = $this->_request("POST", "/api/tables/");
-		$machine = new \Machine\Machine($req);
-		$machine->addAction("/api/tables/", "POST", function($machine) {
-			$machine->setResponseCode(200);
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addAction("/api/tables/", "POST", function($engine) {
+			$engine->setResponseCode(200);
 			$body = json_encode(["table1", "table2"]);
-			$machine->setResponseBody($body);
+			$engine->setResponseBody($body);
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals(200, $response["code"]);
 		$this->assertEquals('["table1","table2"]', $response["body"]);
 	}
@@ -384,39 +384,39 @@ class MachineTest extends \PHPUnit_Framework_TestCase
 	public function testSameRouteMatch()
 	{
 		$req = $this->_request("POST", "/api2/tables/");
-		$machine = new \Machine\Machine($req);
+		$engine = new \WebEngine\WebEngine($req);
 		// definition order is important! Before, the most static.
-		$machine->addAction("/api2/tables/", "POST", function($machine) {
-			$machine->setResponseCode(200);
-			$machine->setResponseBody("fixed");
+		$engine->addAction("/api2/tables/", "POST", function($engine) {
+			$engine->setResponseCode(200);
+			$engine->setResponseBody("fixed");
 		});
-		$machine->addAction("/{tablename}/{id}/", "POST", function($machine) {
-			$machine->setResponseCode(200);
-			$machine->setResponseBody("wildcards");
+		$engine->addAction("/{tablename}/{id}/", "POST", function($engine) {
+			$engine->setResponseCode(200);
+			$engine->setResponseBody("wildcards");
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals("fixed", $response["body"]);
 	}
 	
 	public function testPluginRoutes()
 	{
 		$req = $this->_request("GET", "/plug/");
-		$machine = new \Machine\Machine($req);
-		$sample = $machine->addPlugin("Sample");
+		$engine = new \WebEngine\WebEngine($req);
+		$sample = $engine->addPlugin("Sample");
 		$sample->setRoutes("/plug");
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals("TEST<span>Home page</span>", $response["body"]);
 	}
 	
 	public function testServe()
 	{
 		$req = $this->_request("GET", "/assets/js/lib1/lib1.js");
-		$machine = new \Machine\Machine($req);
-		$machine->addAction("/assets/{filename:.+}", "GET", function($machine, $filename) {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addAction("/assets/{filename:.+}", "GET", function($engine, $filename) {
 			$serverpath = __DIR__ . "/plugins/Sample/template/" . $filename;
-			$machine->serve($serverpath);
+			$engine->serve($serverpath);
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$this->assertEquals(200, $response["code"]);
 		$this->assertEquals("console.log('lib1.js');", $response["body"]);
 	}

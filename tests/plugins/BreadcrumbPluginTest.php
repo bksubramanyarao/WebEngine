@@ -1,6 +1,6 @@
 <?php
 
-namespace Machine\Tests;
+namespace WebEngine\Tests;
 
 require './vendor/autoload.php';
 
@@ -16,7 +16,7 @@ class BreadcrumbPluginTest extends \PHPUnit_Framework_TestCase
         "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs/index.php",
 				"HTTP_HOST" => "localhost:8000"
 			],
-			"templates_path" => "tests/machine/templates/",
+			"templates_path" => "tests/engine/templates/",
 			"plugins_path" => "plugins/"
 		];
 	}
@@ -25,10 +25,10 @@ class BreadcrumbPluginTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Breadcrumb");	
-		$machine->addPage("/", function($machine) {
-			$bc = $machine->plugin("Breadcrumb");
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Breadcrumb");	
+		$engine->addPage("/", function($engine) {
+			$bc = $engine->plugin("Breadcrumb");
 			$bc->add("Home", "/");
 			$bc->add("Products", "/products/");
 			$bc->setLabel("Woman skirt");
@@ -39,7 +39,7 @@ class BreadcrumbPluginTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		
 		$this->assertEquals('<h1><span><a href="/">Home</a></span> | <span><a href="/products/">Products</a></span> | Woman skirt</h1>', $response["body"]);
 	}

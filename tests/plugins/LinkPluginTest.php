@@ -1,6 +1,6 @@
 <?php
 
-namespace Machine\Tests;
+namespace WebEngine\Tests;
 
 require './vendor/autoload.php';
 
@@ -16,7 +16,7 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
         "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
         "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs/index.php"
 			],
-			"templates_path" => "tests/machine/templates/",
+			"templates_path" => "tests/engine/templates/",
 			"plugins_path" => "plugins/"
 		];
 	}
@@ -25,9 +25,9 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Link");	
-		$machine->addPage("/", function($machine) {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Link");	
+		$engine->addPage("/", function($engine) {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -35,8 +35,8 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
-		$link = $machine->plugin("Link")->Get("/testlink/");
+		$response = $engine->run(true);
+		$link = $engine->plugin("Link")->Get("/testlink/");
 		
 		$this->assertEquals("<h1>//localhost:8000/testlink/</h1>", $response["body"]);
 		$this->assertEquals("//localhost:8000/testlink/", $link);	
@@ -46,8 +46,8 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$Link = $machine->addPlugin("Link");	
+		$engine = new \WebEngine\WebEngine($req);
+		$Link = $engine->addPlugin("Link");	
 		$Link->setRoute("LANGUAGE_PAGE", "/language/{lang}/{version}/");
 		$the_link = $Link->Get(["LANGUAGE_PAGE", "php", "5"]);
 		
@@ -58,9 +58,9 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Link");	
-		$machine->addPage("/", function($machine) {
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Link");	
+		$engine->addPage("/", function($engine) {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -68,23 +68,23 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		
 		$this->assertEquals("<h1><span>active</span><span></span></h1>", $response["body"]);
-		$this->assertEquals("active", $machine->plugin("Link")->Active("/"));
-		$this->assertEquals("active", $machine->plugin("Link")->Active(["/"]));
-		$this->assertEquals("", $machine->plugin("Link")->Active("/contacts/"));
-		$this->assertEquals("", $machine->plugin("Link")->Active(["/contacts/"]));
+		$this->assertEquals("active", $engine->plugin("Link")->Active("/"));
+		$this->assertEquals("active", $engine->plugin("Link")->Active(["/"]));
+		$this->assertEquals("", $engine->plugin("Link")->Active("/contacts/"));
+		$this->assertEquals("", $engine->plugin("Link")->Active(["/contacts/"]));
 	}
 	
 	public function testSetName() 
 	{
 		$req = $this->_request("GET", "/contacts/");
 		
-		$machine = new \Machine\Machine($req);
-		$Link = $machine->addPlugin("Link");
+		$engine = new \WebEngine\WebEngine($req);
+		$Link = $engine->addPlugin("Link");
 		$Link->setRoute("CONTACT_PAGE", "/contacts/");
-		$machine->addPage($Link->getRoute("CONTACT_PAGE"), function($machine) {
+		$engine->addPage($Link->getRoute("CONTACT_PAGE"), function($engine) {
 			return [
 				"template" => "test.php",
 				"data" => [
@@ -93,7 +93,7 @@ class LinkPluginTest extends \PHPUnit_Framework_TestCase
 			];
 		});
 		
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		
 		$this->assertEquals("<h1>//localhost:8000/contacts/</h1>", $response["body"]);
 	}

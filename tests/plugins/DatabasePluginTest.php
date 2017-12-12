@@ -1,6 +1,6 @@
 <?php
 
-namespace Machine\Tests;
+namespace WebEngine\Tests;
 
 require './vendor/autoload.php';
 
@@ -16,7 +16,7 @@ class DatabasePluginTest extends \PHPUnit_Framework_TestCase
         "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
         "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs/index.php"
 			],
-			"templates_path" => "tests/machine/templates/",
+			"templates_path" => "tests/engine/templates/",
 			"plugins_path" => "plugins/"
 		];
 	}
@@ -25,11 +25,11 @@ class DatabasePluginTest extends \PHPUnit_Framework_TestCase
 	{
 		$req = $this->_request("GET", "/");
 		
-		$machine = new \Machine\Machine($req);
-		$machine->addPlugin("Database");	
-		$response = $machine->run(true);
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPlugin("Database");	
+		$response = $engine->run(true);
 		
-		$db = $machine->plugin("Database");
+		$db = $engine->plugin("Database");
 		$db->setupSqlite("testdb");
 		$db->nuke();
 		

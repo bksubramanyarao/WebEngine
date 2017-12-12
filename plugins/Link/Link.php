@@ -1,18 +1,18 @@
 <?php
 /**
- * The Machine
+ * WebEngine
  *
  * PHP version 5
  *
  * @category  Plugin
- * @package   Machine
+ * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
  * @copyright 2017 Paolo Savoldi
- * @license   https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
- * @link      https://github.com/paooolino/Machine
+ * @link      https://github.com/paooolino/WebEngine
  */
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 /**
  * Link class
@@ -20,28 +20,28 @@ namespace Machine\Plugin;
  * A class grouping useful methods to manage links.
  *
  * @category Plugin
- * @package  Machine
+ * @package  WebEngine
  * @author   Paolo Savoldi <paooolino@gmail.com>
- * @license  https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license  https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *           (Apache License 2.0)
- * @link     https://github.com/paooolino/Machine
+ * @link     https://github.com/paooolino/WebEngine
  */
 class Link
 {
-  private $_machine;
+  private $_engine;
 
   private $_routes;
 
   /**
    * Link plugin constructor.
    *
-   * The user should not use it directly, as this is called by the Machine.
+   * The user should not use it directly, as this is called by the WebEngine.
    *
-   * @param Machine $machine the Machine instance.
+   * @param WebEngine $engine the WebEngine instance.
    */
-  public function __construct($machine)
+  public function __construct($engine)
   {
-    $this->_machine = $machine;
+    $this->_engine = $engine;
     $this->_routes = [];
   }
     
@@ -75,8 +75,8 @@ class Link
       }
     }
     
-    $r = $this->_machine->getRequest();
-    return "//" . $r["SERVER"]["HTTP_HOST"] . $this->_machine->basepath . $route;
+    $r = $this->_engine->getRequest();
+    return "//" . $r["SERVER"]["HTTP_HOST"] . $this->_engine->basepath . $route;
   }
     
   /**
@@ -93,7 +93,7 @@ class Link
       $params = [$params];
     }
     $slug = $params[0];
-    $r = $this->_machine->getRequest();
+    $r = $this->_engine->getRequest();
     if ($r["SERVER"]["REQUEST_URI"] == $slug) {
       return "active";
     }

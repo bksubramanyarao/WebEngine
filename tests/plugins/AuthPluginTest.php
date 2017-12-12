@@ -1,6 +1,6 @@
 <?php
 
-namespace Machine\Tests;
+namespace WebEngine\Tests;
 
 require './vendor/autoload.php';
 
@@ -17,7 +17,7 @@ class AuthPluginTest extends \PHPUnit_Framework_TestCase
 				"HTTP_HOST" => "localhost:8000",
 				"REMOTE_ADDR" => "127.0.0.1"
 			],
-			"templates_path" => "tests/machine/templates/",
+			"templates_path" => "tests/engine/templates/",
 			"plugins_path" => "plugins/"
 		];
 	}
@@ -27,13 +27,13 @@ class AuthPluginTest extends \PHPUnit_Framework_TestCase
 		// ====================================================================
 		//	1. login and setup auth cookie
 		// ====================================================================
-		// setup request and machine
+		// setup request and engine
 		$req = $this->_request("POST", "/login/");
-		$machine = new \Machine\Machine($req);
+		$engine = new \WebEngine\WebEngine($req);
 		
 		// adding plugins
-		$db = $machine->addPlugin("Database");	
-		$auth = $machine->addPlugin("Auth");	
+		$db = $engine->addPlugin("Database");	
+		$auth = $engine->addPlugin("Auth");	
 		
 		// setup plugins
 		$db->setupSqlite("testdb");
@@ -46,8 +46,8 @@ class AuthPluginTest extends \PHPUnit_Framework_TestCase
 		]);
 		
 		// add login action
-		$machine->addAction("/login/", "POST", function($machine) {
-			$auth = $machine->plugin("Auth");
+		$engine->addAction("/login/", "POST", function($engine) {
+			$auth = $engine->plugin("Auth");
 			
 			// write credentials controls here...
 			// ...
@@ -56,10 +56,10 @@ class AuthPluginTest extends \PHPUnit_Framework_TestCase
 			$auth->generateAuthCookies(1);
 			
 			// then, redirect
-			$machine->redirect("/dashboard/");
+			$engine->redirect("/dashboard/");
 		}); 
 		
-		$response = $machine->run(true);
+		$response = $engine->run(true);
 		$cookie_name = $response["cookies"][0][0];
 		$cookie_value = $response["cookies"][0][1];
 		
@@ -71,20 +71,20 @@ class AuthPluginTest extends \PHPUnit_Framework_TestCase
 		$req2["COOKIE"] = [
 			$cookie_name => $cookie_value
 		];
-		$machine2 = new \Machine\Machine($req2);
+		$engine2 = new \WebEngine\WebEngine($req2);
 
 		// adding plugins
-		$machine2->addPlugin("Database");	
-		$machine2->addPlugin("Auth");
+		$engine2->addPlugin("Database");	
+		$engine2->addPlugin("Auth");
 	
 		// setup plugins
-		$machine2->plugin("Database")->setupSqlite("testdb");
-		$machine2->plugin("Auth")->setDataCallback(function($machine, $user_id) {
-			return $machine->plugin("Database")->load("user", $user_id);
+		$engine2->plugin("Database")->setupSqlite("testdb");
+		$engine2->plugin("Auth")->setDataCallback(function($engine, $user_id) {
+			return $engine->plugin("Database")->load("user", $user_id);
 		});
 		
-		$machine2->addPage("/dashboard/", function($machine) {
-			$auth = $machine->plugin("Auth");
+		$engine2->addPage("/dashboard/", function($engine) {
+			$auth = $engine->plugin("Auth");
 			$auth->checkLogin();
 			return [
 				"template" => "test.php",
@@ -93,7 +93,7 @@ class AuthPluginTest extends \PHPUnit_Framework_TestCase
 				]
 			];
 		});
-		$response = $machine2->run(true);
+		$response = $engine2->run(true);
 		$this->assertEquals("<h1>Logged user: John</h1>", $response["body"]);
 		
 		$db->close();

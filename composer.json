@@ -1,32 +1,32 @@
 {
-    "name": "paooolino/machine",
+    "name": "paooolino/webengine",
     "authors": [
         {
             "name": "paooolino",
             "email": "paooolino@gmail.com"
         }
     ],
-    "homepage": "https://github.com/paooolino/Machine",
+    "homepage": "https://github.com/paooolino/WebEngine",
     "license": "Apache 2.0",
     "require": {
         "gabordemooij/redbean": "^4.3",
         "ramsey/uuid": "^3.6",
         "cocur/slugify": "^2.5",
-		"intervention/image": "^2.4",
+        "intervention/image": "^2.4",
         "nikic/fast-route": "^1.2"
     },
     "autoload": {
         "psr-4": {
-            "Machine\\": "src"
+            "WebEngine\\": "src"
         }
     },
     "scripts": {
         "phpcs": ["phpcs src", "phpcs plugins"],
         "phpcbf": ["phpcbf src", "phpcbf plugins"],
-		"generatedoc": "php phpDocumentor.phar -d src,plugins -t docs",
-		"phpunit": "phpunit tests/machine --whitelist src --coverage-html coverage/machine",
-		"phpunit_plugins": "phpunit tests/plugins --whitelist plugins --coverage-html coverage/plugins",
-		"start": "php -S localhost:8000 -t example"
+        "generatedoc": "php phpDocumentor.phar -d src,plugins -t docs",
+        "phpunit": "phpunit tests/engine --whitelist src --coverage-html coverage/engine",
+        "phpunit_plugins": "phpunit tests/plugins --whitelist plugins --coverage-html coverage/plugins",
+        "start": "php -S localhost:8000 -t example"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.0",

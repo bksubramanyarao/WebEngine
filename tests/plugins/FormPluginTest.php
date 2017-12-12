@@ -1,6 +1,6 @@
 <?php
 
-namespace Machine\Tests;
+namespace WebEngine\Tests;
 
 require './vendor/autoload.php';
 
@@ -16,7 +16,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
         "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
         "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs/index.php"
 			],
-			"templates_path" => "tests/machine/templates/",
+			"templates_path" => "tests/engine/templates/",
 			"plugins_path" => "plugins/"
 		];
 	}
@@ -24,11 +24,11 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
   public function testAddForm()
   {
     $req = $this->_request("GET", "/");
-    $machine = new \Machine\Machine($req);
-    $machine->addPlugin("Form");	
+    $engine = new \WebEngine\WebEngine($req);
+    $engine->addPlugin("Form");	
     
-		$machine->addPage("/", function($machine) {
-			$Form = $machine->plugin("Form");
+		$engine->addPage("/", function($engine) {
+			$Form = $engine->plugin("Form");
 			$Form->addForm("myForm", [
         "action" => "/register/",
         "submitlabel" => "Invia",
@@ -45,7 +45,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
 			];
 		});
     
-    $response = $machine->run(true);
+    $response = $engine->run(true);
 
     $this->assertContains('<form method="post" action="/register/" enctype="multipart/form-data">', $response["body"]);
     $this->assertContains('<button type="submit">Invia</button>', $response["body"]);
@@ -60,11 +60,11 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
   public function testSetValues()
   {
     $req = $this->_request("GET", "/");
-    $machine = new \Machine\Machine($req);
-    $machine->addPlugin("Form");	
+    $engine = new \WebEngine\WebEngine($req);
+    $engine->addPlugin("Form");	
     
-		$machine->addPage("/", function($machine) {
-			$Form = $machine->plugin("Form");
+		$engine->addPage("/", function($engine) {
+			$Form = $engine->plugin("Form");
 			$Form->addForm("myForm", [
         "action" => "/register/",
         "submitlabel" => "Invia",
@@ -85,7 +85,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
 			];
 		});
     
-    $response = $machine->run(true);
+    $response = $engine->run(true);
     $this->assertContains('<input id="myFormemail" type="text" value="test@test.it" name="email" />', $response["body"]);
     $this->assertContains('<input id="myFormactive" type="checkbox" name="active" checked="checked" />', $response["body"]);
   }
@@ -93,11 +93,11 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
   public function testSetFieldTemplate()
   {
     $req = $this->_request("GET", "/");
-    $machine = new \Machine\Machine($req);
-    $machine->addPlugin("Form");	
+    $engine = new \WebEngine\WebEngine($req);
+    $engine->addPlugin("Form");	
     
-		$machine->addPage("/", function($machine) {
-			$Form = $machine->plugin("Form");
+		$engine->addPage("/", function($engine) {
+			$Form = $engine->plugin("Form");
 			$Form->addForm("myForm", [
         "action" => "/register/",
         "submitlabel" => "Invia",
@@ -114,7 +114,7 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
 			];
 		});
     
-    $response = $machine->run(true);
+    $response = $engine->run(true);
     $this->assertContains('<div class="myclass"><input name="email" /></div>', $response["body"]);
   }
 }

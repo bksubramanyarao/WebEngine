@@ -1,18 +1,18 @@
 <?php
 /**
- * The Machine
+ * WebEngine
  *
  * PHP version 5
  *
  * @category  Plugin
- * @package   Machine
+ * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
  * @copyright 2017 Paolo Savoldi
- * @license   https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
- * @link      https://github.com/paooolino/Machine
+ * @link      https://github.com/paooolino/WebEngine
  */
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 /**
  * Upload class
@@ -20,20 +20,20 @@ namespace Machine\Plugin;
  * A class grouping useful methods to manage file uploads.
  *
  * @category Plugin
- * @package  Machine
+ * @package  WebEngine
  * @author   Paolo Savoldi <paooolino@gmail.com>
- * @license  https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license  https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *           (Apache License 2.0)
- * @link     https://github.com/paooolino/Machine
+ * @link     https://github.com/paooolino/WebEngine
  */
 class Upload
 {
-  private $_machine;
+  private $_engine;
   private $_uploadpath;
   
-  public function __construct($machine)
+  public function __construct($engine)
   {
-    $this->_machine = $machine;
+    $this->_engine = $engine;
     $this->_uploadpath = "uploads/";
   }
 
@@ -50,7 +50,7 @@ class Upload
    */
   public function detectPostMaxSizeExceeded()
   {
-    $r = $this->_machine->getRequest();
+    $r = $this->_engine->getRequest();
     if (
       $r["SERVER"]["REQUEST_METHOD"] == "POST" && 
       empty($r["POST"]) &&

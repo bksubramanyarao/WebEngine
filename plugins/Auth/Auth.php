@@ -1,18 +1,18 @@
 <?php
 /**
- * The Machine
+ * WebEngine
  *
  * PHP version 5
  *
  * @category  Plugin
- * @package   Machine
+ * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
  * @copyright 2017 Paolo Savoldi
- * @license   https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
- * @link      https://github.com/paooolino/Machine
+ * @link      https://github.com/paooolino/WebEngine
  */
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 use \Ramsey\Uuid\Uuid;
 
@@ -22,16 +22,16 @@ use \Ramsey\Uuid\Uuid;
  * Function related to user authentication
  *
  * @category Plugin
- * @package  Machine
+ * @package  WebEngine
  * @author   Paolo Savoldi <paooolino@gmail.com>
- * @license  https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license  https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *           (Apache License 2.0)
- * @link     https://github.com/paooolino/Machine
+ * @link     https://github.com/paooolino/WebEngine
  */
 class Auth
 {
     
-    private $_machine;
+    private $_engine;
     private $_data_callback;
     
     public $logged_user_id;
@@ -42,13 +42,13 @@ class Auth
     /**
      * Auth plugin constructor.
      *
-     * The user should not use it directly, as this is called by the Machine.
+     * The user should not use it directly, as this is called by the WebEngine.
      *
-     * @param Machine $machine the Machine instance.
+     * @param WebEngine $engine the WebEngine instance.
      */
-    function __construct($machine) 
+    function __construct($engine) 
     {
-        $this->_machine = $machine;
+        $this->_engine = $engine;
 		
 		$this->logged_user_id = 0;
 		$this->data = [];
@@ -80,16 +80,16 @@ class Auth
 	 */	
     public function generateAuthCookies($user_id) 
     {
-        $req = $this->_machine->getRequest();
+        $req = $this->_engine->getRequest();
         
         // generate a unique session code.
         $sessioncode = md5($this->_uuid());
         
         // set the auth cookie with the session code.
-        $this->_machine->setCookie(self::AUTH_COOKIE_NAME, $sessioncode, 0, "/");
+        $this->_engine->setCookie(self::AUTH_COOKIE_NAME, $sessioncode, 0, "/");
         
         // save session in db.
-        $this->_machine->plugin("Database")->addItem(
+        $this->_engine->plugin("Database")->addItem(
             "loginsession", [
             "user_id" => $user_id,
             "sessioncode" => $sessioncode,
@@ -112,11 +112,11 @@ class Auth
         $this->data = [];
         
         // retrieve cookie value
-        $req = $this->_machine->getRequest();
+        $req = $this->_engine->getRequest();
         if (isset($req["COOKIE"][self::AUTH_COOKIE_NAME])) {
             $sessioncode = $req["COOKIE"][self::AUTH_COOKIE_NAME];
             // get the session in db
-            $session = $this->_machine->plugin("Database")->findField("loginsession", "sessioncode", $sessioncode);
+            $session = $this->_engine->plugin("Database")->findField("loginsession", "sessioncode", $sessioncode);
 			if ($session) {
                 // additional check based on ip
                 if ($session->ip == $req["SERVER"]["REMOTE_ADDR"]) {
@@ -124,7 +124,7 @@ class Auth
                     $this->logged_user_id = $session->user_id;
                     // execute data_callback
                     if ($this->_data_callback) {
-                        $this->data = call_user_func_array($this->_data_callback, [$this->_machine, $this->logged_user_id]);
+                        $this->data = call_user_func_array($this->_data_callback, [$this->_engine, $this->logged_user_id]);
                     }
                 }
             }

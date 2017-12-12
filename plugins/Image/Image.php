@@ -1,18 +1,18 @@
 <?php
 /**
- * The Machine
+ * WebEngine
  *
  * PHP version 5
  *
  * @category  Plugin
- * @package   Machine
+ * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
  * @copyright 2017 Paolo Savoldi
- * @license   https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
- * @link      https://github.com/paooolino/Machine
+ * @link      https://github.com/paooolino/WebEngine
  */
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 use Intervention\Image\ImageManager;
 
@@ -22,22 +22,22 @@ use Intervention\Image\ImageManager;
  * A class grouping useful methods to manage images.
  *
  * @category Plugin
- * @package  Machine
+ * @package  WebEngine
  * @author   Paolo Savoldi <paooolino@gmail.com>
- * @license  https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license  https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *           (Apache License 2.0)
- * @link     https://github.com/paooolino/Machine
+ * @link     https://github.com/paooolino/WebEngine
  */
 class Image
 {
-  private $_machine;
+  private $_engine;
   private $_maxW;
   private $_maxH;
   private $_imageManager;
   
-  public function __construct($machine)
+  public function __construct($engine)
   {
-    $this->_machine = $machine;
+    $this->_engine = $engine;
     $this->_maxW = 2000;
     $this->_maxH = 2000;
     $this->_imageManager = new ImageManager(array('driver' => 'gd'));
@@ -120,7 +120,7 @@ class Image
       $return_value = $filename_thumb;
     }
             
-    $r = $this->_machine->getRequest();
-    return "//" . $r["SERVER"]["HTTP_HOST"] . $this->_machine->basepath . $return_value;
+    $r = $this->_engine->getRequest();
+    return "//" . $r["SERVER"]["HTTP_HOST"] . $this->_engine->basepath . $return_value;
   }
 }

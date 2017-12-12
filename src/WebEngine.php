@@ -1,32 +1,32 @@
 <?php
 /**
- * The Machine
+ * WebEngine
  *
  * PHP version 5
  *
  * @category  Core
- * @package   Machine
+ * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
  * @copyright 2017 Paolo Savoldi
- * @license   https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
- * @link      https://github.com/paooolino/Machine
+ * @link      https://github.com/paooolino/WebEngine
  */
-namespace Machine;
+namespace WebEngine;
 
 /**
- * Machine
+ * WebEngine
  *
  * Create a web application instantiating this class.
  *
  * @category Core
- * @package  Machine
+ * @package  WebEngine
  * @author   Paolo Savoldi <paooolino@gmail.com>
- * @license  https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license  https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *           (Apache License 2.0)
- * @link     https://github.com/paooolino/Machine
+ * @link     https://github.com/paooolino/WebEngine
  */
-class Machine
+class WebEngine
 {
   private $_SERVER;
   private $_GET;
@@ -62,7 +62,7 @@ class Machine
   ];
     
   /**
-   * Create new machine.
+   * Create new engine.
    *
    * Available options are:
    * - SERVER
@@ -89,14 +89,14 @@ class Machine
     $this->_template_name = "default";
 
     // The base path. Used to expose the subpath in the visible links on page.
-    // If Machine is in the root: 
+    // If WebEngine is in the root: 
     //  script_name is: /index.php
     //  resulting basepath is: empty string
-    // If Machine is in the /web subdirectory
+    // If WebEngine is in the /web subdirectory
     //  script_name is: /web/index.php
     //  resulting basepath is: /web
     // templates and plugins path are specified relatively to the index.php 
-    // (Machine root) location.    
+    // (WebEngine root) location.    
     // script_name is calculated as the difference between document_root and script_filename
     //  to fix the fact that with builtin php server the SCRIPT_NAME variable equals the REQUEST_URI 
     //  under some circustances (e.g. request uri pointing to an existing directory)
@@ -162,7 +162,7 @@ class Machine
    */    
   public function addPlugin($name)
   {
-    $className = "\\Machine\\Plugin\\" . $name;
+    $className = "\\WebEngine\\Plugin\\" . $name;
     
     // look in the project plugins folder
     if (!class_exists($className)) {
@@ -172,7 +172,7 @@ class Machine
       }
     }
     
-    // look in the default Machine plugins folder
+    // look in the default WebEngine plugins folder
     if (!class_exists($className)) {
       $default_plugin_path = __DIR__ . "/../plugins/" . $name . "/" . $name . ".php"; 
       if (file_exists($default_plugin_path)) {
@@ -506,7 +506,7 @@ class Machine
           "wildcards" => isset($vars) ? count($vars) : 0,
           "callback" => $handler,
           "params" => array_merge(
-            // the Machine object is passed as first param
+            // the WebEngine object is passed as first param
             [$this], 
             isset($vars) ? $vars : []
           )
@@ -582,7 +582,7 @@ class Machine
       }
     }
     
-    // make available some machine functions intended to be used in templates
+    // make available some engine functions intended to be used in templates
     // e.g. use {{templatePath}} instead of
     // echo $this->templatePath();
     $tags = [];

@@ -1,34 +1,34 @@
 <?php
 /**
- * The Machine
+ * WebEngine
  *
  * PHP version 5
  *
  * @category  Plugin
- * @package   Machine
+ * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
  * @copyright 2017 Paolo Savoldi
- * @license   https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
- * @link      https://github.com/paooolino/Machine
+ * @link      https://github.com/paooolino/WebEngine
  */
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 /**
  * Form class
  *
- * A Form manager for the Machine.
+ * A Form manager for the WebEngine.
  *
  * @category Plugin
- * @package  Machine
+ * @package  WebEngine
  * @author   Paolo Savoldi <paooolino@gmail.com>
- * @license  https://github.com/paooolino/Machine/blob/master/LICENSE 
+ * @license  https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *           (Apache License 2.0)
- * @link     https://github.com/paooolino/Machine
+ * @link     https://github.com/paooolino/WebEngine
  */
 class Form
 {
-  private $machine;
+  private $_engine;
   private $forms;
   
   private $formrow_template = '
@@ -72,13 +72,13 @@ class Form
   /**
    * Form plugin constructor.
    *
-   * The user should not use it directly, as this is called by the Machine.
+   * The user should not use it directly, as this is called by the WebEngine.
    *
-   * @param Machine $machine the Machine instance.
+   * @param WebEngine $engine the WebEngine instance.
    */
-  function __construct($machine) 
+  function __construct($engine) 
   {
-    $this->machine = $machine;
+    $this->_engine = $engine;
     $this->_values = [];
     $this->_currentForm = "";
   }
@@ -144,7 +144,7 @@ class Form
           $value = $this->_values[$formName][$fieldname];
         }
       }
-      $html_rows .= $this->machine->populateTemplate(
+      $html_rows .= $this->_engine->populateTemplate(
         $this->formrow_template, [
           "LABEL" => $this->getFormLabel($formField),
           "FIELD" => $this->getFormField($formField, $value),
@@ -153,7 +153,7 @@ class Form
       );
     }
     
-    $html = $this->machine->populateTemplate(
+    $html = $this->_engine->populateTemplate(
       $this->form_template, [
         "FORMACTION" => $opts["action"],
         "FORMROWS" => $html_rows,
@@ -222,7 +222,7 @@ class Form
       case "hidden";
       case "textarea";
       case "password":
-        return $this->machine->populateTemplate(
+        return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
           [
             "VALUE" => $value,
@@ -234,7 +234,7 @@ class Form
       case "content":
         return '';
       case "select":
-        return $this->machine->populateTemplate(
+        return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
           [
             "VALUE" => $value,
@@ -249,7 +249,7 @@ class Form
         if ($value == 1 || $value == true || $value == "true") {
           $arr_attributes["checked"] = "checked";
         }
-        return $this->machine->populateTemplate(
+        return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
           [
             "UNIQUE_ID" => $this->_getUniqueId($formField),
@@ -259,7 +259,7 @@ class Form
         );
         break;
       case "radio":
-        return $this->machine->populateTemplate(
+        return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
           [
             "VALUE" => $value,

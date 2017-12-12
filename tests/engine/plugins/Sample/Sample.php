@@ -1,17 +1,17 @@
 <?php
 
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 class Sample {
 	
-	private $_machine;
+	private $_engine;
 	
 	// hook
 	private $_after_plugfun = [];
 	
-	public function __construct($machine)
+	public function __construct($engine)
 	{
-		$this->_machine = $machine;
+		$this->_engine = $engine;
 		$this->_prefixDir = "";
 	}
 	
@@ -29,7 +29,7 @@ class Sample {
 		}
 		
 		// execute hook
-		$this->_machine->executeHook($this->_after_plugfun, $params);
+		$this->_engine->executeHook($this->_after_plugfun, $params);
 		
 		return "Sample plugin function called with params "
 			. implode(", ", $params);
@@ -37,7 +37,7 @@ class Sample {
 	
 	public function setRoutes($prefixdir)
 	{
-		$this->_machine->addPage($prefixdir . "/", function() {
+		$this->_engine->addPage($prefixdir . "/", function() {
 			return [
 				"template" => __DIR__ . "/template/test.php",
 				"data" => [

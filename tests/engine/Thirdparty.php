@@ -1,6 +1,6 @@
 <?php
 
-namespace Machine\Plugin;
+namespace WebEngine\Plugin;
 
 class Thirdparty
 {
