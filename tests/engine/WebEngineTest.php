@@ -26,7 +26,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase
 		return [
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
-				"REQUEST_URI" => "/",
+				"REQUEST_URI" => $path,
 				"HTTP_HOST" => "localhost:8000",
         "DOCUMENT_ROOT" => "C:\www\example.com\httpdocs",
         "SCRIPT_FILENAME" => "C:\www\example.com\httpdocs\web/index.php"
@@ -71,6 +71,24 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals("/", $engine->getCurrentPath());
 	}
 	
+  public function testRequestWithQueryString()
+  {
+		$req = $this->_request("GET", "/?test=1");
+		
+		$engine = new \WebEngine\WebEngine($req);
+		$engine->addPage("/", function() {
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "Home page"
+				]
+			];
+		});
+		$response = $engine->run(true);
+		$this->assertEquals("<h1>Home page</h1>", $response["body"]);    
+    $this->assertEquals("/", $engine->getCurrentPath());
+  }
+  
 	public function testSetTemplate()
 	{
 		$req = $this->_request("GET", "/");

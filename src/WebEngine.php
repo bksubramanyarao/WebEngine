@@ -47,18 +47,18 @@ class WebEngine
   public $basepath;
  
   private $_allowedCTypes = [
-  "css" => "text/css",
-  "js" => "application/javascript",
-  "json" => "application/json",
-  "jpg" => "image/jpeg",
-  "jpeg" => "image/jpeg",
-  "gif" => "image/gif",
-  "mid" => "audio/midi",
-  "midi" => "audio/midi",
-  "png" => "image/png",
-  "svg" => "image/svg+xml",
-  "pdf" => "application/pdf",
-  "mp4" => "video/mp4"
+    "css" => "text/css",
+    "js" => "application/javascript",
+    "json" => "application/json",
+    "jpg" => "image/jpeg",
+    "jpeg" => "image/jpeg",
+    "gif" => "image/gif",
+    "mid" => "audio/midi",
+    "midi" => "audio/midi",
+    "png" => "image/png",
+    "svg" => "image/svg+xml",
+    "pdf" => "application/pdf",
+    "mp4" => "video/mp4"
   ];
     
   /**
@@ -66,8 +66,10 @@ class WebEngine
    *
    * Available options are:
    * - SERVER
+   * - GET
    * - POST
    * - COOKIE
+   * - FILES
    * - templates_path
    * - plugins_path
    *
@@ -91,10 +93,10 @@ class WebEngine
     // The base path. Used to expose the subpath in the visible links on page.
     // If WebEngine is in the root: 
     //  script_name is: /index.php
-    //  resulting basepath is: empty string
+    //  resulting basepath must be: empty string
     // If WebEngine is in the /web subdirectory
     //  script_name is: /web/index.php
-    //  resulting basepath is: /web
+    //  resulting basepath must be: /web
     // templates and plugins path are specified relatively to the index.php 
     // (WebEngine root) location.    
     // script_name is calculated as the difference between document_root and script_filename
@@ -112,20 +114,6 @@ class WebEngine
     ];
   }
   
-  /**
-   * Executes an hook.
-   *
-   * This is intended to be executed by plugins.
-   *
-   * @return void
-   */
-  public function executeHook($arrFunc, $arguments) 
-  {
-    foreach ($arrFunc as $func) {
-      call_user_func_array($func, array_merge([$this], $arguments));
-    }
-  }
-    
   /**
    * Add a route without side effects.
    *
@@ -152,7 +140,7 @@ class WebEngine
   {
     return $this->_addRoute($name, $method, $cb);
   }
-      
+  
   /**
    * Add a plugin by name.
    *
@@ -184,6 +172,20 @@ class WebEngine
     if (class_exists($className)) {
       $this->_plugins[$name] = new $className($this);
       return $this->_plugins[$name];
+    }
+  }
+  
+  /**
+   * Executes an hook.
+   *
+   * This is intended to be executed by plugins.
+   *
+   * @return void
+   */
+  public function executeHook($arrFunc, $arguments) 
+  {
+    foreach ($arrFunc as $func) {
+      call_user_func_array($func, array_merge([$this], $arguments));
     }
   }
     
