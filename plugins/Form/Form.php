@@ -274,7 +274,7 @@ class Form
   
   private function _buildFieldAttributesString($arr_attributes)
   {
-    $allowed_attributes = ["name", "disabled", "checked"];
+    $allowed_attributes = ["name", "disabled", "checked", "value"];
     $atts = [];
     foreach ($arr_attributes as $k => $v) {
       if (in_array($k, $allowed_attributes)) {
