@@ -47,6 +47,8 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     
     $response = $engine->run(true);
 
+    $this->assertContains('<div class="formContainer form_myForm">', $response["body"]);
+    
     $this->assertContains('<form method="post" action="/register/" enctype="multipart/form-data">', $response["body"]);
     $this->assertContains('<button type="submit">Invia</button>', $response["body"]);
     

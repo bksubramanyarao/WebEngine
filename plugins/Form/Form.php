@@ -43,7 +43,7 @@ class Form
     </div>
   ';
   private $form_template = '
-    <div class="formContainer">
+    <div class="formContainer form_{{FORMNAME}}">
       <form method="post" action="{{FORMACTION}}" enctype="multipart/form-data">
         {{FORMROWS}}
         <button type="submit">{{SUBMITLABEL}}</button>
@@ -155,6 +155,7 @@ class Form
     
     $html = $this->_engine->populateTemplate(
       $this->form_template, [
+        "FORMNAME" => $formName,
         "FORMACTION" => $opts["action"],
         "FORMROWS" => $html_rows,
         "SUBMITLABEL" => isset($opts["submitlabel"]) ? $opts["submitlabel"] : "submit"
