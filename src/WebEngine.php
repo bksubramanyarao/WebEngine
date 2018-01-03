@@ -425,7 +425,7 @@ class WebEngine
     
     return $this->_response;
   }
-
+  
   /**
    * Serve a static asset.
    *
