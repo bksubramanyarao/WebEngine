@@ -56,7 +56,7 @@ class Form
     "image" => '<input id="{{UNIQUE_ID}}" type="file" data-value="{{VALUE}}" {{ATTRIBUTES}} />',
     "content" => '',
     "email" => '<input id="{{UNIQUE_ID}}" type="email" value="{{VALUE}}" {{ATTRIBUTES}} />',  
-    "select" => '<select id="{{UNIQUE_ID}}" value="{{VALUE}}" {{ATTRIBUTES}}>{{OPTS}}</select>',  
+    "select" => '<select id="{{UNIQUE_ID}}" {{ATTRIBUTES}}>{{OPTS}}</select>',  
     "password" => '<input id="{{UNIQUE_ID}}" type="password" {{ATTRIBUTES}} />',  
     "checkbox" => '<label><input id="{{UNIQUE_ID}}" type="checkbox" {{ATTRIBUTES}} /> {{LABEL}}</label>',     
     "hidden" => '<input type="hidden" value="{{VALUE}}" {{ATTRIBUTES}} />',
@@ -165,14 +165,22 @@ class Form
     return $html;
   }
   
-  private function _getHtmlForOptions($opts) {
+  private function _getHtmlForOptions($opts, $value) {
     $html = '';
     
     foreach ($opts as $opt) {
       if (gettype($opt) == "string") {
-        $html .= '<option>' . $opt . '</option>';
+        if ($value == $opt) {
+          $html .= '<option selected>' . $opt . '</option>';
+        } else {
+          $html .= '<option>' . $opt . '</option>';
+        }
       } else {
-        $html .= '<option value="' . $opt[0] . '">' . $opt[1] . '</option>';
+        if ($value == $opt[0]) {
+          $html .= '<option selected value="' . $opt[0] . '">' . $opt[1] . '</option>';
+        } else {
+          $html .= '<option value="' . $opt[0] . '">' . $opt[1] . '</option>';
+        }
       }
     }
     
@@ -238,10 +246,9 @@ class Form
         return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
           [
-            "VALUE" => $value,
             "UNIQUE_ID" => $this->_getUniqueId($formField),
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2]),
-            "OPTS" =>  $this->_getHtmlForOptions($formField[2]["options"])
+            "OPTS" =>  $this->_getHtmlForOptions($formField[2]["options"], $value)
           ]
         );
         break;;
