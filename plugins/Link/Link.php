@@ -29,7 +29,6 @@ namespace WebEngine\Plugin;
 class Link
 {
   private $_engine;
-
   private $_routes;
 
   /**
@@ -127,5 +126,20 @@ class Link
     }
     $name = $params[0];
     return isset($this->_routes[$name]) ? $this->_routes[$name] : $name;
+  }
+  
+  /**
+   *  Return a route name, given the route path.
+   *
+   *  Useful for debug purposes.
+   */
+  public function getRouteName($route)
+  {
+    foreach ($this->_routes as $k => $v) {
+      if ($v == $route) {
+        return $k;
+      }
+    }
+    return "";
   }
 }

@@ -44,8 +44,11 @@ class WebEngine
   
   private $_response;
   
+  private $_debug_infos;
+  public $append_debug_infos;
+  
   public $basepath;
- 
+
   private $_allowedCTypes = [
     "css" => "text/css",
     "js" => "application/javascript",
@@ -89,7 +92,9 @@ class WebEngine
     $this->_routes = [];
     $this->_plugins = [];
     $this->_template_name = "default";
-
+    $this->_debug_infos = [];
+    $this->append_debug_infos = false;
+    
     // The base path. Used to expose the subpath in the visible links on page.
     // If WebEngine is in the root: 
     //  script_name is: /index.php
@@ -198,7 +203,7 @@ class WebEngine
    */
   public function plugin($name) 
   {
-    return $this->_plugins[$name];
+    return isset($this->_plugins[$name]) ? $this->_plugins[$name] : null;
   }
     
   /**
@@ -374,8 +379,15 @@ class WebEngine
     $path = $this->getCurrentPath();
 
     $route_matchinfo = $this->_matchRoute($path, $method);   
-    
+
     if ($route_matchinfo) {
+      $reflFunc = new \ReflectionFunction($route_matchinfo["callback"]);
+      $this->_debug_infos[] = "route: " . $route_matchinfo["routename"];
+      $Link = $this->plugin("Link");
+      if (isset($Link)) {
+        $this->_debug_infos[] = "route name: " . $this->plugin("Link")->getRouteName($route_matchinfo["routename"]);
+      }
+      $this->_debug_infos[] = "route callback defined in: " . $reflFunc->getFileName() . ':' . $reflFunc->getStartLine();
       // execute route callback.
       $result = call_user_func_array(
         $route_matchinfo["callback"], 
@@ -392,6 +404,9 @@ class WebEngine
             $result["template"], 
             $data
           );
+          if ($this->append_debug_infos) {
+            $this->_response["body"] .= $this->_getDebugInfos();
+          }
         } else {
           // a route was found but nor a response was set or a 
           //  page was found.
@@ -448,6 +463,14 @@ class WebEngine
     }
   }
     
+  private function _getDebugInfos() {
+    $html = "";
+    $html .= "<!--\r\n";
+    $html .= print_r($this->_debug_infos, true);
+    $html .= "-->\r\n";
+    return $html;
+  }
+  
   /**
    * Add a generic route.
    *
@@ -537,6 +560,7 @@ class WebEngine
     }
     
     if (file_exists($template_file_name)) {
+      $this->_debug_infos[] = "Template: " . $template_file_name;
       // plugins are available under their name
       //  this lets to write in templates
       //    $Auth->logged_user_id
