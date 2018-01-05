@@ -367,6 +367,11 @@ class WebEngine
     return $path;
   }
   
+  public function add_debug_info($str)
+  {
+    $this->_debug_infos[] = $str;
+  }
+  
   /**
    * Run the application.
    *
@@ -382,12 +387,12 @@ class WebEngine
 
     if ($route_matchinfo) {
       $reflFunc = new \ReflectionFunction($route_matchinfo["callback"]);
-      $this->_debug_infos[] = "route: " . $route_matchinfo["routename"];
+      $this->add_debug_info("route: " . $route_matchinfo["routename"]);
       $Link = $this->plugin("Link");
       if (isset($Link)) {
-        $this->_debug_infos[] = "route name: " . $this->plugin("Link")->getRouteName($route_matchinfo["routename"]);
+        $this->add_debug_info("route name: " . $this->plugin("Link")->getRouteName($route_matchinfo["routename"]));
       }
-      $this->_debug_infos[] = "route callback defined in: " . $reflFunc->getFileName() . ':' . $reflFunc->getStartLine();
+      $this->add_debug_info("route callback defined in: " . $reflFunc->getFileName() . ':' . $reflFunc->getStartLine());
       // execute route callback.
       $result = call_user_func_array(
         $route_matchinfo["callback"], 
@@ -560,7 +565,7 @@ class WebEngine
     }
     
     if (file_exists($template_file_name)) {
-      $this->_debug_infos[] = "Template: " . $template_file_name;
+      $this->add_debug_info("Template: " . $template_file_name);
       // plugins are available under their name
       //  this lets to write in templates
       //    $Auth->logged_user_id
