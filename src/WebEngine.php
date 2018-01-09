@@ -377,12 +377,25 @@ class WebEngine
    *
    * @return array A response array
    */
-  public function run($silent = false)
+  public function run($silent=false, $method=NULL, $path=NULL)
   {
+    // reset the response, as the engine may be re-run
+    $this->_response = [
+      "headers" => [],
+      "code" => "",
+      "reason" => "",
+      "body" => "",
+      "cookies" => []
+    ];
+    
     // fetch method and uri
-    $method = $this->_SERVER["REQUEST_METHOD"];
-    $path = $this->getCurrentPath();
-
+    if (is_null($method)) {
+      $method = $this->_SERVER["REQUEST_METHOD"];
+    }
+    if (is_null($path)) {
+      $path = $this->getCurrentPath();
+    }
+    
     $route_matchinfo = $this->_matchRoute($path, $method);   
 
     if ($route_matchinfo) {
@@ -424,7 +437,7 @@ class WebEngine
       $this->_response["code"] = 404;
       $this->_response["reason"] = "Not found";
     }
-      
+          
     if (!$silent) {
       foreach ($this->_response["cookies"] as $cookieparams) {
         call_user_func_array("setcookie", $cookieparams);
@@ -441,6 +454,8 @@ class WebEngine
       } else {
         echo $this->_response["reason"];
       }
+      
+      die();
     }
     
     return $this->_response;
