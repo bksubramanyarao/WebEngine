@@ -623,7 +623,7 @@ class WebEngine
     // populate simple tag with data
     foreach ($data as $k => $v) {
       // if a string, try the tag substitution
-      if (gettype($v) == "string") {
+      if (gettype($v) == "string" || gettype($v) == "integer") {
         $tpl = str_replace("{{".$k."}}", $v, $tpl);
       }
     }
