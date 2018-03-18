@@ -30,11 +30,13 @@ class Upload
 {
   private $_engine;
   private $_uploadpath;
+  public $add_date_to_uploadpath;
   
   public function __construct($engine)
   {
     $this->_engine = $engine;
     $this->_uploadpath = "uploads/";
+    $this->add_date_to_uploadpath = true;
   }
 
   public function setUploadPath($uploadpath)
@@ -79,7 +81,8 @@ class Upload
   public function upload($filearr)
   {
     if ($filearr["error"] == 0) {
-      $uploadpath = $this->_uploadpath . date("d-m-Y") . "/";
+      $d = $this->add_date_to_uploadpath ? date("d-m-Y") : "";
+      $uploadpath = $this->_uploadpath . $d . "/";
       if (!file_exists($uploadpath)) {
         mkdir($uploadpath, 0777, true);
       }
