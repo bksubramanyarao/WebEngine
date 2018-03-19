@@ -224,6 +224,7 @@ class Form
   private function getFormField($formField, $value) 
   {
     $field_type = $formField[1];
+    $additional_macros = isset($formField[3]) ? $formField[3] : [];
     switch ($field_type) {
       case "text";
       case "image";
@@ -233,11 +234,11 @@ class Form
       case "password":
         return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
-          [
+          array_merge($additional_macros, [
             "VALUE" => $value,
             "UNIQUE_ID" => $this->_getUniqueId($formField),
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2])
-          ]
+          ])
         );
         break;
       case "content":
@@ -245,11 +246,11 @@ class Form
       case "select":
         return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
-          [
+          array_merge($additional_macros, [
             "UNIQUE_ID" => $this->_getUniqueId($formField),
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2]),
             "OPTS" =>  $this->_getHtmlForOptions($formField[2]["options"], $value)
-          ]
+          ])
         );
         break;;
       case "checkbox":
@@ -259,22 +260,22 @@ class Form
         }
         return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
-          [
+          array_merge($additional_macros, [
             "UNIQUE_ID" => $this->_getUniqueId($formField),
             "LABEL" => $formField[0],
             "ATTRIBUTES" => $this->_buildFieldAttributesString($arr_attributes)
-          ]
+          ])
         );
         break;
       case "radio":
         return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
-          [
+          array_merge($additional_macros, [
             "VALUE" => $value,
             "UNIQUE_ID" => $this->_getUniqueId($formField),
             "LABEL" => $formField[0],
             "ATTRIBUTES" => $this->_buildFieldAttributesString($formField[2])
-          ]
+          ])
         );
         break;
     }

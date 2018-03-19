@@ -119,4 +119,34 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     $response = $engine->run(true);
     $this->assertContains('<div class="myclass"><input name="email" /></div>', $response["body"]);
   }
+  
+  public function testAdditionalMacros()
+  {
+    $req = $this->_request("GET", "/");
+    $engine = new \WebEngine\WebEngine($req);
+    $engine->addPlugin("Form");	
+    
+		$engine->addPage("/", function($engine) {
+			$Form = $engine->plugin("Form");
+			$Form->addForm("myForm", [
+        "action" => "/register/",
+        "submitlabel" => "Invia",
+        "fields" => [
+          ["email", "text", ["name" => "email"], ["MY_CLASS" => "theClass"]]
+        ],
+        
+      ]);
+      $Form->setFieldTemplate("text", '<div class="{{MY_CLASS}}"><input {{ATTRIBUTES}} /></div>');
+			return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "{{Form|Render|myForm}}"
+				]
+			];
+		});
+    
+    $response = $engine->run(true);
+    $this->assertContains('<div class="theClass"><input name="email" /></div>', $response["body"]);
+
+  }
 }

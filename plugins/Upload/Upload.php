@@ -81,8 +81,8 @@ class Upload
   public function upload($filearr)
   {
     if ($filearr["error"] == 0) {
-      $d = $this->add_date_to_uploadpath ? date("d-m-Y") : "";
-      $uploadpath = $this->_uploadpath . $d . "/";
+      $d = $this->add_date_to_uploadpath ? date("d-m-Y") . "/" : "";
+      $uploadpath = $this->_uploadpath . $d;
       if (!file_exists($uploadpath)) {
         mkdir($uploadpath, 0777, true);
       }
