@@ -149,4 +149,13 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     $this->assertContains('<div class="theClass"><input name="email" /></div>', $response["body"]);
 
   }
+  
+  public function testRfInput() {
+    $req = $this->_request("GET", "/");
+    $engine = new \WebEngine\WebEngine($req);
+    $Form = $engine->addPlugin("Form");	
+    
+    $input = $Form->rf_input("fieldname", "This is the field value");
+    $this->assertEquals('<input id="fieldname" type="text" value="This is the field value" name="fieldname" />', $input);
+  }
 }

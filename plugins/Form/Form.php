@@ -122,6 +122,23 @@ class Form
   }
   
   /**
+   *  rf functions (render field)
+   *  render single fields
+   */
+  public function rf_input($name, $value) {
+    return $this->_engine->populateTemplate(
+      $this->field_templates["text"],
+      [
+        "VALUE" => $value,
+        "UNIQUE_ID" => $name,
+        "ATTRIBUTES" => $this->_buildFieldAttributesString([
+          "name" => $name
+        ])
+      ]
+    );
+  }
+  
+  /**
    * Renders the form, given the name.
    *
    * @param string $params
