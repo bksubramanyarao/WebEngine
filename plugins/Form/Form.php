@@ -179,9 +179,10 @@ class Form
    *  render single checkbox input
    *
    */
-  public function checkbox($name, $label, $value=false) {
+  public function checkbox($name, $label, $value_attr=1, $value=false) {
     $arr_attributes = [
-      "name" => $name
+      "name" => $name,
+      "value" => $value_attr
     ];
     if ($value == 1 || $value == true || $value == "true") {
       $arr_attributes["checked"] = "checked";
