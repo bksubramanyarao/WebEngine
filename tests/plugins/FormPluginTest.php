@@ -173,7 +173,12 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     $input = $Form->select("fieldname", [[1, "babbo"],["baabs", "baabs"]], ["baabs", 1], true);
     $this->assertEquals('<select id="fieldname" name="fieldname" multiple="multiple"><option selected value="1">babbo</option><option selected value="baabs">baabs</option></select>', $input);
     
-    $input = $Form->checkbox("fieldname", "nome", 1);
+    // checkbox (unchecked)
+    $input = $Form->checkbox("fieldname", "nome");
     $this->assertEquals('<label><input id="fieldname" type="checkbox" name="fieldname" /> nome</label>', $input);
+  
+    // checkbox (checked)
+    $input = $Form->checkbox("fieldname", "nome", 1);
+    $this->assertEquals('<label><input id="fieldname" type="checkbox" name="fieldname" checked="checked" /> nome</label>', $input);
   }
 }

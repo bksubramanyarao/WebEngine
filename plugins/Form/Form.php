@@ -168,7 +168,6 @@ class Form
     return $this->_engine->populateTemplate(
       $this->field_templates["select"],
       [
-        "VALUE" => $value,
         "UNIQUE_ID" => $name,
         "ATTRIBUTES" => $this->_buildFieldAttributesString($attributes),
         "OPTS" => $this->_getHtmlForOptions($opts, $value)
@@ -180,16 +179,19 @@ class Form
    *  render single checkbox input
    *
    */
-  public function checkbox($name, $label, $value) {
+  public function checkbox($name, $label, $value=false) {
+    $arr_attributes = [
+      "name" => $name
+    ];
+    if ($value == 1 || $value == true || $value == "true") {
+      $arr_attributes["checked"] = "checked";
+    } 
     return $this->_engine->populateTemplate(
       $this->field_templates["checkbox"],
       [
-        "VALUE" => $value,
         "UNIQUE_ID" => $name,
         "LABEL" => $label,
-        "ATTRIBUTES" => $this->_buildFieldAttributesString([
-          "name" => $name
-        ])
+        "ATTRIBUTES" => $this->_buildFieldAttributesString($arr_attributes)
       ]
     );
   }
@@ -337,7 +339,7 @@ class Form
         $arr_attributes = $formField[2];
         if ($value == 1 || $value == true || $value == "true") {
           $arr_attributes["checked"] = "checked";
-        }
+        }    
         return $this->_engine->populateTemplate(
           $this->field_templates[$field_type],
           array_merge($additional_macros, [
