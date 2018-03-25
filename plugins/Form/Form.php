@@ -122,15 +122,71 @@ class Form
   }
   
   /**
-   *  rf functions (render field)
-   *  render single fields
+   *  render single input
    */
-  public function rf_input($name, $value) {
+  public function input($name, $value) {
     return $this->_engine->populateTemplate(
       $this->field_templates["text"],
       [
         "VALUE" => $value,
         "UNIQUE_ID" => $name,
+        "ATTRIBUTES" => $this->_buildFieldAttributesString([
+          "name" => $name
+        ])
+      ]
+    );
+  }
+  
+  /**
+   *  render single file input
+   */
+  public function image($name, $value) {
+    return $this->_engine->populateTemplate(
+      $this->field_templates["image"],
+      [
+        "VALUE" => $value,
+        "UNIQUE_ID" => $name,
+        "ATTRIBUTES" => $this->_buildFieldAttributesString([
+          "name" => $name
+        ])
+      ]
+    );
+  }
+  
+  /**
+   *  render single select input
+   *
+   *  opts: [[value, label],[..., ...], ...]
+   */
+  public function select($name, $opts, $value, $multiple=false) {
+    $attributes = [
+      "name" => $name
+    ];
+    if ($multiple)
+      $attributes["multiple"] = "multiple";
+    
+    return $this->_engine->populateTemplate(
+      $this->field_templates["select"],
+      [
+        "VALUE" => $value,
+        "UNIQUE_ID" => $name,
+        "ATTRIBUTES" => $this->_buildFieldAttributesString($attributes),
+        "OPTS" => $this->_getHtmlForOptions($opts, $value)
+      ]
+    );
+  }
+  
+  /**
+   *  render single checkbox input
+   *
+   */
+  public function checkbox($name, $label, $value) {
+    return $this->_engine->populateTemplate(
+      $this->field_templates["checkbox"],
+      [
+        "VALUE" => $value,
+        "UNIQUE_ID" => $name,
+        "LABEL" => $label,
         "ATTRIBUTES" => $this->_buildFieldAttributesString([
           "name" => $name
         ])
@@ -182,18 +238,25 @@ class Form
     return $html;
   }
   
+  // $value may be an array of values in case of multiselect
   private function _getHtmlForOptions($opts, $value) {
     $html = '';
     
     foreach ($opts as $opt) {
       if (gettype($opt) == "string") {
-        if ($value == $opt) {
+        if (
+          (gettype($value) == "string" && $value == $opt)
+          || (gettype($value) == "array" && in_array($opt, $value))
+        ) {
           $html .= '<option selected>' . $opt . '</option>';
         } else {
           $html .= '<option>' . $opt . '</option>';
         }
       } else {
-        if ($value == $opt[0]) {
+        if (
+          (gettype($value) == "string" && $value == $opt[0])
+          || (gettype($value) == "array" && in_array($opt[0], $value))        
+        ) {
           $html .= '<option selected value="' . $opt[0] . '">' . $opt[1] . '</option>';
         } else {
           $html .= '<option value="' . $opt[0] . '">' . $opt[1] . '</option>';
@@ -300,7 +363,7 @@ class Form
   
   private function _buildFieldAttributesString($arr_attributes)
   {
-    $allowed_attributes = ["name", "disabled", "checked", "value"];
+    $allowed_attributes = ["name", "disabled", "checked", "value", "multiple"];
     $atts = [];
     foreach ($arr_attributes as $k => $v) {
       if (in_array($k, $allowed_attributes)) {

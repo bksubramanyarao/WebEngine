@@ -150,12 +150,30 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
 
   }
   
-  public function testRfInput() {
+  public function testSingleFields() {
     $req = $this->_request("GET", "/");
     $engine = new \WebEngine\WebEngine($req);
     $Form = $engine->addPlugin("Form");	
     
-    $input = $Form->rf_input("fieldname", "This is the field value");
+    $input = $Form->input("fieldname", "This is the field value");
     $this->assertEquals('<input id="fieldname" type="text" value="This is the field value" name="fieldname" />', $input);
+  
+    $input = $Form->image("fieldname", "currentvalue");
+    $this->assertEquals('<input id="fieldname" type="file" data-value="currentvalue" name="fieldname" />', $input);
+
+    // simple select
+    $input = $Form->select("fieldname", [[1, "babbo"],["baabs", "baabs"]], "baabs");
+    $this->assertEquals('<select id="fieldname" name="fieldname"><option value="1">babbo</option><option selected value="baabs">baabs</option></select>', $input);
+
+    // multi select with 1 selected
+    $input = $Form->select("fieldname", [[1, "babbo"],["baabs", "baabs"]], ["baabs"], true);
+    $this->assertEquals('<select id="fieldname" name="fieldname" multiple="multiple"><option value="1">babbo</option><option selected value="baabs">baabs</option></select>', $input);
+
+    // multi select with 2 selected
+    $input = $Form->select("fieldname", [[1, "babbo"],["baabs", "baabs"]], ["baabs", 1], true);
+    $this->assertEquals('<select id="fieldname" name="fieldname" multiple="multiple"><option selected value="1">babbo</option><option selected value="baabs">baabs</option></select>', $input);
+    
+    $input = $Form->checkbox("fieldname", "nome", 1);
+    $this->assertEquals('<label><input id="fieldname" type="checkbox" name="fieldname" /> nome</label>', $input);
   }
 }
