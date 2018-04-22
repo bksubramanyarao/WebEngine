@@ -184,5 +184,9 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     // textarea
     $input = $Form->textarea("fieldname", "nome");
     $this->assertEquals('<textarea id="fieldname" name="fieldname">nome</textarea>', $input);
+    
+    // textarea with opts
+    $input = $Form->textarea("fieldname", "nome", ["class" => "ckeditor"]);
+    $this->assertEquals('<textarea id="fieldname" class="ckeditor" name="fieldname">nome</textarea>', $input);
   }
 }

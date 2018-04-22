@@ -140,15 +140,17 @@ class Form
   /**
    *  render single textarea
    */
-  public function textarea($name, $value) {
+  public function textarea($name, $value, $opts=[]) {
     return $this->_engine->populateTemplate(
       $this->field_templates["textarea"],
       [
         "VALUE" => $value,
         "UNIQUE_ID" => $name,
-        "ATTRIBUTES" => $this->_buildFieldAttributesString([
-          "name" => $name
-        ])
+        "ATTRIBUTES" => $this->_buildFieldAttributesString(
+          array_merge($opts, [
+            "name" => $name
+          ])
+        )
       ]
     );    
   }
@@ -382,7 +384,7 @@ class Form
   
   private function _buildFieldAttributesString($arr_attributes)
   {
-    $allowed_attributes = ["name", "disabled", "checked", "value", "multiple"];
+    $allowed_attributes = ["class", "name", "disabled", "checked", "value", "multiple"];
     $atts = [];
     foreach ($arr_attributes as $k => $v) {
       if (in_array($k, $allowed_attributes)) {
