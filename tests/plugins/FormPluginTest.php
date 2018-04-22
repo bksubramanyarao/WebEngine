@@ -180,5 +180,9 @@ class FormPluginTest extends \PHPUnit_Framework_TestCase
     // checkbox (checked)
     $input = $Form->checkbox("fieldname", "nome", 1, 1);
     $this->assertEquals('<label><input id="fieldname" type="checkbox" name="fieldname" value="1" checked="checked" /> nome</label>', $input);
+  
+    // textarea
+    $input = $Form->textarea("fieldname", "nome");
+    $this->assertEquals('<textarea id="fieldname" name="fieldname">nome</textarea>', $input);
   }
 }

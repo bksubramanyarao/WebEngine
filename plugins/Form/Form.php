@@ -138,6 +138,22 @@ class Form
   }
   
   /**
+   *  render single textarea
+   */
+  public function textarea($name, $value) {
+    return $this->_engine->populateTemplate(
+      $this->field_templates["textarea"],
+      [
+        "VALUE" => $value,
+        "UNIQUE_ID" => $name,
+        "ATTRIBUTES" => $this->_buildFieldAttributesString([
+          "name" => $name
+        ])
+      ]
+    );    
+  }
+  
+  /**
    *  render single file input
    */
   public function image($name, $value) {
