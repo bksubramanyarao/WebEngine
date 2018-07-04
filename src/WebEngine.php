@@ -411,6 +411,31 @@ class WebEngine
         $route_matchinfo["callback"], 
         $route_matchinfo["params"]
       );
+      
+      // has the callback set any response code?
+      //  yes ==> end <code>
+      //  no ==> template or templatecode are set in the result?
+      //    no ==> end <404>
+      //    yes ==> templatecode is set?
+      //      yes ==> end <200>
+      //      no ==> template is set?
+      //        yes ==> end <200>
+      if ($this->_response["code"] == "") {
+        if (isset($result["templatecode"]) || isset($result["template"])) {
+          if (isset($result["templatecode"])) {
+            $data = $result["data"] ?? [];
+            $this->_response["code"] = 200;
+            $this->_response["reason"] = "OK";  
+            $this->_response["body"] == $this->_mixTemplateWithData(
+              $result["templatecode"], $data
+            );
+          }
+        } else {
+          $this->_response["code"] = 404;
+          $this->_response["reason"] = "Not found";             
+        }
+      }
+      
       // the callback may set some response. if not, look for the template.
       if ($this->_response["code"] == "") {
         if (isset($result["data"]) && $result["template"]) {

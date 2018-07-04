@@ -88,7 +88,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
   // ---
   public function testRequestWithQueryString()
   {
-		$req = $this->_request("GET", "/?test=1");
+		$req = $this->_setOpts("GET", "/?test=1");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPage("/", function() {
@@ -106,7 +106,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
   
 	public function testSetTemplate()
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->setTemplate("testtemplate");
@@ -124,7 +124,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testRouteParams()
 	{
-		$req = $this->_request("GET", "/languages/php/5/");
+		$req = $this->_setOpts("GET", "/languages/php/5/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPage("/languages/{language}/{version}/", function($engine, $language, $version) {
@@ -137,7 +137,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testMatchSimilarRoutes()
 	{
-		$req = $this->_request("GET", "/languages/php/6/");
+		$req = $this->_setOpts("GET", "/languages/php/6/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPage("/languages/{language}/", function($engine) {
@@ -162,7 +162,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testActionOk()
 	{
-		$req = $this->_request("POST", "/actionpost/");
+		$req = $this->_setOpts("POST", "/actionpost/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addAction("/actionpost/", "POST", function($engine) {
@@ -177,7 +177,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testMethodNotFoundOk()
 	{
-		$req = $this->_request("POST", "/actionpost/");
+		$req = $this->_setOpts("POST", "/actionpost/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addAction("/actionpost/", "GET", function($engine) {
@@ -190,7 +190,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testRouteNotFound()
 	{
-		$req = $this->_request("GET", "/non-existent-page/");
+		$req = $this->_setOpts("GET", "/non-existent-page/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPage("/", function() {
@@ -208,7 +208,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testTemplateNotFound()
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPage("/", function() {
@@ -226,7 +226,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testRouteDuplicated()
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPage("/", function() {
@@ -247,7 +247,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testAddDefaultPlugin() 
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPlugin("Link");
@@ -256,7 +256,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testAddUserPlugin() 
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPlugin("Sample");
@@ -267,7 +267,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	{
 		include("Thirdparty.php");
 		
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPlugin("Thirdparty");
@@ -276,7 +276,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testAddNonExistentPlugin() 
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$result = $engine->addPlugin("NonExistent");
@@ -285,7 +285,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testUsePlugin() 
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPlugin("Sample");
@@ -326,7 +326,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testTemplateTag()
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addPage("/", function() {
@@ -343,7 +343,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testGetRequest()
 	{
-		$req = $this->_request("GET", "/");
+		$req = $this->_setOpts("GET", "/");
 		
 		$engine = new \WebEngine\WebEngine($req);
 		$r = $engine->getRequest();
@@ -355,7 +355,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testSetCookie()
 	{
-		$req = $this->_request("POST", "/login/");
+		$req = $this->_setOpts("POST", "/login/");
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addAction("/login/", "POST", function($engine) {
 			$engine->setCookie("loggedIn", 1);
@@ -366,7 +366,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testExecuteHook()
 	{
-		$req = $this->_request("POST", "/plugfun/");
+		$req = $this->_setOpts("POST", "/plugfun/");
 		$engine = new \WebEngine\WebEngine($req);
 		$sample = $engine->addPlugin("Sample");
 		$sample->addHook("after_plugfun", function($engine, $param1, $param2) {
@@ -382,7 +382,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testSendError()
 	{
-		$req = $this->_request("POST", "/myaction/");
+		$req = $this->_setOpts("POST", "/myaction/");
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addAction("/myaction/", "POST", function($engine) {
 			$engine->setResponseCode(303);
@@ -402,7 +402,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testActionApi()
 	{
-		$req = $this->_request("POST", "/api/tables/");
+		$req = $this->_setOpts("POST", "/api/tables/");
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addAction("/api/tables/", "POST", function($engine) {
 			$engine->setResponseCode(200);
@@ -416,7 +416,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testSameRouteMatch()
 	{
-		$req = $this->_request("POST", "/api2/tables/");
+		$req = $this->_setOpts("POST", "/api2/tables/");
 		$engine = new \WebEngine\WebEngine($req);
 		// definition order is important! Before, the most static.
 		$engine->addAction("/api2/tables/", "POST", function($engine) {
@@ -433,7 +433,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testPluginRoutes()
 	{
-		$req = $this->_request("GET", "/plug/");
+		$req = $this->_setOpts("GET", "/plug/");
 		$engine = new \WebEngine\WebEngine($req);
 		$sample = $engine->addPlugin("Sample");
 		$sample->setRoutes("/plug");
@@ -443,7 +443,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testServe()
 	{
-		$req = $this->_request("GET", "/assets/js/lib1/lib1.js");
+		$req = $this->_setOpts("GET", "/assets/js/lib1/lib1.js");
 		$engine = new \WebEngine\WebEngine($req);
 		$engine->addAction("/assets/{filename:.+}", "GET", function($engine, $filename) {
 			$serverpath = __DIR__ . "/plugins/Sample/template/" . $filename;
