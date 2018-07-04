@@ -2,12 +2,12 @@
 /**
  * WebEngine
  *
- * PHP version 5
+ * PHP version 7
  *
  * @category  Core
  * @package   WebEngine
  * @author    Paolo Savoldi <paooolino@gmail.com>
- * @copyright 2017 Paolo Savoldi
+ * @copyright 2017-2018 Paolo Savoldi
  * @license   https://github.com/paooolino/WebEngine/blob/master/LICENSE 
  *            (Apache License 2.0)
  * @link      https://github.com/paooolino/WebEngine

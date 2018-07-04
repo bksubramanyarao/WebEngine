@@ -4,10 +4,8 @@ namespace WebEngine\Tests;
 
 require './vendor/autoload.php';
 
-class WebEngineTest extends \PHPUnit_Framework_TestCase
-{
-	private function _request($method, $path)
-	{
+class WebEngineTest extends \PHPUnit_Framework_TestCase {
+	private function _setOpts($method, $path)	{
 		return [
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
@@ -21,8 +19,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase
 		];
 	}
   
-	private function _requestInSubdir($method, $path)
-	{
+	private function _setOptsInSubdir($method, $path)	{
 		return [
 			"SERVER" => [
 				"REQUEST_METHOD" => $method,
@@ -36,11 +33,8 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase
 		];
 	}
 	
-	public function testPageOk()
-	{
-		$req = $this->_request("GET", "/");
-		
-		$engine = new \WebEngine\WebEngine($req);
+	public function testPageOk() {
+		$engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/"));
 		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
@@ -53,11 +47,22 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("<h1>Home page</h1>", $response["body"]);
 	}	
   
-  public function testPageOkInSubdir()
-	{
-		$req = $this->_requestInSubdir("GET", "/web/");
-		
-		$engine = new \WebEngine\WebEngine($req);
+	public function testPageOkTemplateCode() {
+		$engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/"));
+		$engine->addPage("/", function() {
+			return [
+				"templateCode" => "<h1>{{content}}</h1>",
+				"data" => [
+					"content" => "Home page"
+				]
+			];
+		});
+		$response = $engine->run(true);
+		$this->assertEquals("<h1>Home page</h1>", $response["body"]);
+	}	
+  
+  public function testPageOkInSubdir() {
+		$engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/web/"));
 		$engine->addPage("/", function() {
 			return [
 				"template" => "test.php",
@@ -71,6 +76,16 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals("/", $engine->getCurrentPath());
 	}
 	
+  public function testLoadExternalSource() {
+    $engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/"));
+    // the external controllers are in the controllersDir (default: controllers/)
+    $engine->addPage("/", 'filename::methodname');
+    $response = $engine->run(true);
+    $this->assertEquals("<h1>External controller!</h1>", $response["body"]);
+    $this->assertEquals("/", $engine->getCurrentPath());
+  }
+  
+  // ---
   public function testRequestWithQueryString()
   {
 		$req = $this->_request("GET", "/?test=1");
