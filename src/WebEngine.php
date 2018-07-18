@@ -28,26 +28,47 @@ namespace WebEngine;
  */
 class WebEngine
 {
-  private $_SERVER;
-  private $_GET;
-  private $_POST;
-  private $_COOKIE;
-  private $_FILES;
-
+  public $_SERVER;
+  public $_GET;
+  public $_POST;
+  public $_COOKIE;
+  public $_FILES;
+  
+  /*
+   *  Difference between SCRIPT_FILENAME and DOCUMENT_ROOT
+   *  e.g.: /index.php, /subdir/index.php
+   */
+  public $scriptPath;
+  
+  /*
+   *  Framework subdir.
+   *  e.g.: "", "subdir", "subdir1/subdir2"
+   */
+  public $baseDir;
+  
+  /*
+   *  Template Url.
+   *
+   */
+  public $templateUrl;
+  
+  /*
+   *  Difference between REQUEST_URI and QUERY_STRING.
+   *  e.g.: "/"
+   */
+  public $currentRoute;
+  
+  public $templatesDir;
+  public $pluginsDir;
+  public $controllersDir;
+  public $templateName;
+  
   private $_routes;
   private $_plugins;
-
-  private $_templates_path;
-  private $_plugins_path;
-  
-  private $_template_name;
-  
-  private $_response;
-  
+  private $_response; 
   private $_debug_infos;
-  public $append_debug_infos;
   
-  public $basepath;
+  public $append_debug_infos;
 
   private $_allowedCTypes = [
     "css" => "text/css",
@@ -68,47 +89,42 @@ class WebEngine
    * Create new engine.
    *
    * Available options are:
-   * - SERVER
-   * - GET
-   * - POST
-   * - COOKIE
-   * - FILES
-   * - templates_path
-   * - plugins_path
+   * - request
+   *  - SERVER
+   *  - GET
+   *  - POST
+   *  - COOKIE
+   *  - FILES
+   * - templatesDir
+   * - pluginsDir
    *
    * @param array $opts an array of options.
    */
-  public function __construct($opts=[])
-  {
-    $this->_SERVER = isset($opts["SERVER"]) ? $opts["SERVER"] : $_SERVER;
-    $this->_GET = isset($opts["GET"]) ? $opts["GET"] : $_GET;
-    $this->_POST = isset($opts["POST"]) ? $opts["POST"] : $_POST;
-    $this->_COOKIE = isset($opts["COOKIE"]) ? $opts["COOKIE"] : $_COOKIE;
-    $this->_FILES = isset($opts["FILES"]) ? $opts["FILES"] : $_FILES;
-    $this->_templates_path = isset($opts["templates_path"]) 
-        ? $opts["templates_path"] : "templates/";
-    $this->_plugins_path = isset($opts["plugins_path"]) 
-        ? $opts["plugins_path"] : "plugins/";  
+  public function __construct($opts=[]) {
+    $this->_SERVER        = $opts["request"]["SERVER"]  ?? $_SERVER;
+    $this->_GET           = $opts["request"]["GET"]     ?? $_GET;
+    $this->_POST          = $opts["request"]["POST"]    ?? $_POST;
+    $this->_COOKIE        = $opts["request"]["COOKIE"]  ?? $_COOKIE;
+    $this->_FILES         = $opts["request"]["FILES"]   ?? $_FILES;
+    $this->templatesDir   = $opts["templatesDir"]       ?? "templates/";
+    $this->pluginsDir     = $opts["pluginsDir"]         ?? "plugins/";
+    $this->controllersDir = $opts["controllersDir"]     ?? "controllers/";
+    $this->templateName   = $opts["templateName"]       ?? "default";
+
+    $this->scriptPath     = str_replace(
+      $this->_SERVER["DOCUMENT_ROOT"], "",      
+      $this->_SERVER["SCRIPT_FILENAME"]
+    );
+    $this->baseDir        = ltrim(dirname($this->scriptPath), DIRECTORY_SEPARATOR);
+    $this->baseDir = $this->baseDir == "" ? "" : $this->baseDir . "/";
+    $this->templateUrl    = "//" . $this->_SERVER["HTTP_HOST"] . "/" . 
+      $this->baseDir . $this->templatesDir . $this->templateName;
+    $this->currentRoute   = explode("?", $this->_SERVER["REQUEST_URI"])[0];
+    
     $this->_routes = [];
     $this->_plugins = [];
-    $this->_template_name = "default";
     $this->_debug_infos = [];
     $this->append_debug_infos = false;
-    
-    // The base path. Used to expose the subpath in the visible links on page.
-    // If WebEngine is in the root: 
-    //  script_name is: /index.php
-    //  resulting basepath must be: empty string
-    // If WebEngine is in the /web subdirectory
-    //  script_name is: /web/index.php
-    //  resulting basepath must be: /web
-    // templates and plugins path are specified relatively to the index.php 
-    // (WebEngine root) location.    
-    // script_name is calculated as the difference between document_root and script_filename
-    //  to fix the fact that with builtin php server the SCRIPT_NAME variable equals the REQUEST_URI 
-    //  under some circustances (e.g. request uri pointing to an existing directory)
-    $script_name = "/" . ltrim(str_replace($this->_SERVER["DOCUMENT_ROOT"], "", $this->_SERVER["SCRIPT_FILENAME"]), "/\\");
-    $this->basepath = rtrim(dirname($script_name), DIRECTORY_SEPARATOR);
   
     $this->_response = [
       "headers" => [],
@@ -159,7 +175,7 @@ class WebEngine
     
     // look in the project plugins folder
     if (!class_exists($className)) {
-      $project_plugin_path = $this->_plugins_path . $name . "/" . $name . ".php"; 
+      $project_plugin_path = $this->pluginsDir . $name . "/" . $name . ".php"; 
       if (file_exists($project_plugin_path)) {
         include $project_plugin_path;
       }
@@ -255,18 +271,6 @@ class WebEngine
   public function setResponseBody($body)
   {
     $this->_response["body"] = $body;
-  }
-    
-  /**
-   * Set the template name
-   *
-   * @param string $template_name the template name.
-   *
-   * @return void
-   */
-  public function setTemplate($template_name)
-  {
-    $this->_template_name = $template_name;
   }
   
   /**
@@ -377,8 +381,7 @@ class WebEngine
    *
    * @return array A response array
    */
-  public function run($silent=false, $method=NULL, $path=NULL)
-  {
+  public function run() {
     // reset the response, as the engine may be re-run
     $this->_response = [
       "headers" => [],
@@ -388,56 +391,73 @@ class WebEngine
       "cookies" => []
     ];
     
-    // fetch method and uri
-    if (is_null($method)) {
-      $method = $this->_SERVER["REQUEST_METHOD"];
-    }
-    if (is_null($path)) {
-      $path = $this->getCurrentPath();
-    }
-    
-    $route_matchinfo = $this->_matchRoute($path, $method);   
-
-    if ($route_matchinfo) {
-      $reflFunc = new \ReflectionFunction($route_matchinfo["callback"]);
-      $this->add_debug_info("route: " . $route_matchinfo["routename"]);
-      $Link = $this->plugin("Link");
-      if (isset($Link)) {
-        $this->add_debug_info("route name: " . $this->plugin("Link")->getRouteName($route_matchinfo["routename"]));
-      }
-      $this->add_debug_info("route callback defined in: " . $reflFunc->getFileName() . ':' . $reflFunc->getStartLine());
-      // execute route callback.
-      $result = call_user_func_array(
-        $route_matchinfo["callback"], 
-        $route_matchinfo["params"]
-      );
-      // the callback may set some response. if not, look for the template.
-      if ($this->_response["code"] == "") {
-        if (isset($result["data"]) && $result["template"]) {
-          // page found. 200 OK
-          $data = isset($result["data"]) ? $result["data"] : [];
-          $this->_response["code"] = 200;
-          $this->_response["reason"] = "OK";
-          $this->_response["body"] = $this->_getOutputTemplate(
-            $result["template"], 
-            $data
-          );
-          if ($this->append_debug_infos) {
-            $this->_response["body"] .= $this->_getDebugInfos();
-          }
-        } else {
-          // a route was found but nor a response was set or a 
-          //  page was found.
-          $this->_response["code"] = 404;
-          $this->_response["reason"] = "Not found";                    
-        }
-      } // else a response has been set by the callback function.     
-    } else {
-      // no route was found matching the request.
+    // 1. Get route info
+    $route_matchinfo = $this->_matchRoute($this->currentRoute, $this->_SERVER["REQUEST_METHOD"]);   
+    if (!$route_matchinfo) {
       $this->_response["code"] = 404;
       $this->_response["reason"] = "Not found";
+      return $this->_response;
     }
-          
+
+    // look for callback (closure or external)
+    $cb = $route_matchinfo["callback"];
+    if (is_string($cb)) {
+      $external_controller = $this->controllersDir . $cb . ".php";
+      if (file_exists($external_controller)) {
+        include($external_controller);
+        $cb = "\\WebEngine\\Controllers\\" . $cb;
+      }
+    }
+    $reflFunc = new \ReflectionFunction($cb);
+    $this->add_debug_info("route: " . $route_matchinfo["routename"]);
+    $Link = $this->plugin("Link");
+    if (isset($Link)) {
+      $this->add_debug_info("route name: " . $this->plugin("Link")->getRouteName($route_matchinfo["routename"]));
+    }
+    $this->add_debug_info("route callback defined in: " . $reflFunc->getFileName() . ':' . $reflFunc->getStartLine());
+    
+    // 2. Execute callback
+    $result = call_user_func_array(
+      $cb, 
+      $route_matchinfo["params"]
+    );
+    if ($this->_response["code"] != "") {
+      return $this->_response;
+    }
+    
+    // 3. Check for template or templateCode in result
+    if (!(isset($result["data"]) && (isset($result["template"]) || isset($result["templateCode"])))) {
+      // a route was found but nor a response was set or a 
+      //  page was found.
+      $this->_response["code"] = 404;
+      $this->_response["reason"] = "Not found";   
+      return $this->_response;
+    }
+    
+    // 4. Check for templateCode
+    if (isset($result["templateCode"])) {
+      $this->_response["code"] = 200;
+      $this->_response["reason"] = "OK";
+      $this->_response["body"] = $this->populateTemplate(
+        $result["templateCode"], 
+        $result["data"]
+      );
+      return $this->_response;
+    }
+    
+    // 5. Execute the template file
+    // page found. 200 OK
+    $this->_response["code"] = 200;
+    $this->_response["reason"] = "OK";
+    $this->_response["body"] = $this->_getOutputTemplate(
+      $result["template"], 
+      $result["data"]
+    );
+    if ($this->append_debug_infos) {
+      $this->_response["body"] .= $this->_getDebugInfos();
+    }
+ 
+    /*
     if (!$silent) {
       foreach ($this->_response["cookies"] as $cookieparams) {
         call_user_func_array("setcookie", $cookieparams);
@@ -457,6 +477,7 @@ class WebEngine
       
       die();
     }
+    */
     
     return $this->_response;
   }
@@ -500,8 +521,7 @@ class WebEngine
    *
    * @return string Error
    */
-  private function _addRoute($name, $method, $cb)
-  {
+  private function _addRoute($name, $method, $cb) {
     if (isset($this->_routes[$name][$method])) {
       return "Config Error: duplicated route. Route exists for $method " 
         . "method ($name)";
@@ -516,13 +536,12 @@ class WebEngine
   /**
    * Check if a route matches the passed route.
    *
-   * @param string $path   the route to check.
+   * @param string $route   the route to check.
    * @param string $method the request method; either "POST" or "GET".
    *
    * @return array|void the matched route infos (callback and params).
    */
-  private function _matchRoute($path, $method)
-  {
+  private function _matchRoute($route, $method) {
     $dispatcher = \FastRoute\simpleDispatcher(
       function (\FastRoute\RouteCollector $r) use ($method) {
         foreach ($this->_routes as $routename => $routearr) {
@@ -533,7 +552,7 @@ class WebEngine
       }
     );
     
-    $routeInfo = $dispatcher->dispatch($method, $path);
+    $routeInfo = $dispatcher->dispatch($method, $route);
 
     switch ($routeInfo[0]) {
       case \FastRoute\Dispatcher::NOT_FOUND:
@@ -547,7 +566,7 @@ class WebEngine
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
         return [
-          "routename" => $path,
+          "routename" => $route,
           "wildcards" => isset($vars) ? count($vars) : 0,
           "callback" => $handler,
           "params" => array_merge(
@@ -569,15 +588,11 @@ class WebEngine
    *
    * @return string the resulting html output.
    */
-  private function _getOutputTemplate($tpl, $data)
-  {
+  private function _getOutputTemplate($tpl, $data) {
     $output = "";
     
-    if (file_exists($tpl)) {
-      $template_file_name = $tpl;
-    } else {
-      $template_file_name = $this->_templates_path . $this->_template_name . "/" . $tpl;
-    }
+    $template_file_name = $this->templatesDir
+      . $this->templateName . "/" . $tpl;
     
     if (file_exists($template_file_name)) {
       $this->add_debug_info("Template: " . $template_file_name);
@@ -636,6 +651,10 @@ class WebEngine
     for ($i = 0; $i < count($tags[0]); $i++) {
       $parts = explode("|", $tags[1][$i]);
       $method = array_shift($parts);
+      if (isset($this->{$method})) {
+        $value = $this->{$method};
+        $tpl = str_replace($tags[0][$i], $value, $tpl);
+      }
       if (method_exists($this, $method)) {
         $value = $this->{$method}($parts);
         $tpl = str_replace($tags[0][$i], $value, $tpl);
