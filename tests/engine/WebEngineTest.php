@@ -197,7 +197,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 		$result = $engine->addPage("/duplicated/", function() {
 			//
 		});
-		$this->assertEquals("", $result);
+		$this->assertEquals("object", gettype($result));
 		
 		$result = $engine->addPage("/duplicated/", function() {
 			//
@@ -347,4 +347,18 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(200, $response["code"]);
 		$this->assertEquals("console.log('lib1.js');", $response["body"]);
 	}
+  
+  public function testMiddleware() {
+    $engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/"));
+    $engine->addPage("/", function() {
+      return [
+				"template" => "test.php",
+				"data" => [
+					"content" => "home page"
+				]
+      ];
+    })->mw(function($req, $resp, $next) {
+      return $resp;
+    });
+  }
 }

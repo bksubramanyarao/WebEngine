@@ -65,6 +65,7 @@ class WebEngine
   
   private $_routes;
   private $_plugins;
+  private $_mws;
   private $_response; 
   private $_debug_infos;
   
@@ -143,8 +144,7 @@ class WebEngine
    *
    * @return string Error
    */
-  public function addPage($name, $cb)
-  {
+  public function addPage($name, $cb) {
     return $this->_addRoute($name, "GET", $cb);
   }
   
@@ -157,8 +157,7 @@ class WebEngine
    *
    * @return string Error
    */
-  public function addAction($name, $method, $cb)
-  {
+  public function addAction($name, $method, $cb) {
     return $this->_addRoute($name, $method, $cb);
   }
   
@@ -376,6 +375,10 @@ class WebEngine
     $this->_debug_infos[] = $str;
   }
   
+  public function mw($cb) {
+    $this->_mws[] = $cb;
+  }
+  
   /**
    * Run the application.
    *
@@ -530,7 +533,7 @@ class WebEngine
       $this->_routes[$name] = [];
     }
     $this->_routes[$name][$method] = $cb;
-    return "";
+    return $this;
   }
   
   /**
