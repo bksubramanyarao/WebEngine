@@ -113,7 +113,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 		});
 		$response = $engine->run();		
 	}
-  
+
 	public function testMatchSimilarRoutes() {
 		$engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/languages/php/6/"));
 		$engine->addPage("/languages/{language}/", function($engine) {
@@ -135,7 +135,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 		$result = $engine->run();
 		$this->assertEquals("<h1>right page</h1>", $result["body"]);
 	}
-	
+
 	public function testActionOk() {
 		$engine = new \WebEngine\WebEngine($this->_setOpts("POST", "/actionpost/"));
 		$engine->addAction("/actionpost/", "POST", function($engine) {
@@ -268,7 +268,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 		$result = $engine->plugin("Sample")->Plugfun("test");
 		$this->assertEquals("Sample plugin function called with params test", $result);
 	}
-	
+
 	public function testTemplateTag() {
 		$engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/"));
 		$engine->addPage("/", function() {
@@ -336,7 +336,7 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 		$response = $engine->run();
 		$this->assertEquals("fixed", $response["body"]);
 	}
-	
+
 	public function testServe() {
 		$engine = new \WebEngine\WebEngine($this->_setOpts("GET", "/assets/js/lib1/lib1.js"));
 		$engine->addAction("/assets/{filename:.+}", "GET", function($engine, $filename) {
