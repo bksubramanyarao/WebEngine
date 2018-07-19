@@ -357,8 +357,10 @@ class WebEngineTest extends \PHPUnit_Framework_TestCase {
 					"content" => "home page"
 				]
       ];
-    })->mw(function($req, $resp, $next) {
-      return $resp;
+    })->mw(function($request, $response, $next) {
+      $response["body"] .= "BEFORE";
+      $next($request, $response);
+      $response["body"] .= "AFTER";      
     });
   }
 }

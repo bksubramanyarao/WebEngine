@@ -26,8 +26,10 @@ namespace WebEngine;
  *           (Apache License 2.0)
  * @link     https://github.com/paooolino/WebEngine
  */
-class WebEngine
-{
+class WebEngine {
+  private $_request;
+  private $_response;
+  
   public $_SERVER;
   public $_GET;
   public $_POST;
@@ -66,7 +68,6 @@ class WebEngine
   private $_routes;
   private $_plugins;
   private $_mws;
-  private $_response; 
   private $_debug_infos;
   
   public $append_debug_infos;
@@ -126,14 +127,21 @@ class WebEngine
     $this->_plugins = [];
     $this->_debug_infos = [];
     $this->append_debug_infos = false;
-  
+
+    $this->_request = new \GuzzleHttp\Psr7\Request(
+      $this->_SERVER["REQUEST_METHOD"],
+      $this->_SERVER["REQUEST_URI"]
+    );
+    
+    $this->_response = new \GuzzleHttp\Psr7\Response();
+    /*
     $this->_response = [
       "headers" => [],
       "code" => "",
       "reason" => "",
       "body" => "",
       "cookies" => []
-    ];
+    ];*/
   }
   
   /**
