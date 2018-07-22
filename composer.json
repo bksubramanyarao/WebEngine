@@ -13,7 +13,9 @@
         "cocur/slugify": "^2.5",
         "intervention/image": "^2.4",
         "nikic/fast-route": "^1.2",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^6.3",
+        "slim/slim": "^3.10",
+        "slim/php-view": "^2.2"
     },
     "autoload": {
         "psr-4": {
