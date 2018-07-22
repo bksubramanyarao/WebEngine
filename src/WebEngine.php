@@ -28,6 +28,8 @@ namespace WebEngine;
  */
 class WebEngine {
   private $_slim;
+  private $_req;
+  private $_resp;
   
   public function __construct($opts=[]) {
     $this->_slim = new \Slim\App;
@@ -43,8 +45,8 @@ class WebEngine {
   public function addAction() {
   }
   
-  public function run($silent=false) {
-    $response = $this->_slim->run($silent);
+  public function run() {
+    $response = $this->_slim($this->_req, $this->_resp);
     return $response;
   }
 }
