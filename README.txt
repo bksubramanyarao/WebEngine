@@ -12,8 +12,8 @@
 
 	$engine->addPage("/", function() {
 		return [
-			template: "page.php",
-			data: [
+			"template" => "page.php",
+			"data" => [
 				"content" => "Hello, world!"
 			]
 		];
